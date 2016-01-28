@@ -69,25 +69,25 @@ public class FXMLDocumentController implements Initializable {
     
 }
     
-//    @FXML
-//    private void handleBrowseBtn(ActionEvent event){
-//        //File file = filechooser.showOpenDialog(stage);
-//        //if(file != null)
-//          //  openFile(file);
-//        
-//    }
-//    
-//    private void openFile(File file) {
-//        try{
-//            desktop.open(file);
-//        } catch (IOException ex) {
-//            Logger.getLogger(
-//            FXMLDocumentController.class.getName()).log(
-//                    Level.SEVERE, null, ex
-//            );
-//        }
-//        
-//    }
+    @FXML
+    private void handleBrowseBtn(ActionEvent event){
+        File file = filechooser.showOpenDialog(filepath.getScene().getWindow());
+        if(file != null)
+            openFile(file);
+        
+    }
+    
+    private void openFile(File file) {
+        try{
+            desktop.open(file);
+        } catch (IOException ex) {
+            Logger.getLogger(
+            FXMLDocumentController.class.getName()).log(
+                    Level.SEVERE, null, ex
+            );
+        }
+        
+    }
     @Override
     public void initialize(URL url, ResourceBundle rb) {
         // TODO

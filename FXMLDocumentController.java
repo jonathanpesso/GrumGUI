@@ -19,55 +19,55 @@ import javafx.fxml.Initializable;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.ListView;
+import javafx.scene.control.Tab;
+import javafx.scene.control.TabPane;
 import javafx.scene.control.TextField;
 import javafx.stage.FileChooser;
 
 public class FXMLDocumentController implements Initializable {
     
-    @FXML
-    private Button change_to_upload;
-    private Button change_to_search;
-    private TextField filepath;
-    private ListView filelist;
-    private Button btnbrowse;
-    private Button btnupload;
-    private Button btnsearch;
-    private Button btndownload;
-    private final FileChooser filechooser = new FileChooser();
-    private final Desktop desktop = Desktop.getDesktop();
+    @FXML private TabPane tab_pane;
+    @FXML private Tab welcomepanel;
+    @FXML private Tab uploadpanel;
+    @FXML private Tab searchpanel;
+    @FXML private Tab settingpanel;
+    @FXML private TextField filepath;
+    @FXML private Button btnbrowse;
+    @FXML FileChooser filechooser = new FileChooser();
+    @FXML private Desktop desktop = Desktop.getDesktop();
     
     
     
     @FXML
     private void handleChangeUpload(ActionEvent event){
+        tab_pane.getSelectionModel().select(uploadpanel);
     
     
-    
-}
+    }
     @FXML
     private void handleChangeSearch(ActionEvent event){
+        tab_pane.getSelectionModel().select(searchpanel);
     
     
-    
-}
+    }
     @FXML
     private void handleUploadButton(ActionEvent event){
     
     
     
-}
+    }
        @FXML
     private void handleSearchButton(ActionEvent event){
     
     
     
-}
+    }
        @FXML
     private void handleDownloadButton(ActionEvent event){
     
     
     
-}
+    }
     
     @FXML
     private void handleBrowseBtn(ActionEvent event){

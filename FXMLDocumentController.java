@@ -10,12 +10,19 @@ import java.awt.Desktop;
 import java.io.File;
 import java.io.IOException;
 import java.net.URL;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.ResourceBundle;
+import java.util.Set;
+import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import java.util.concurrent.ExecutionException;
+import java.util.Map;
+import java.util.UUID;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
-import javafx.event.ActionEvent;
+
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.Alert;
@@ -25,8 +32,33 @@ import javafx.scene.control.ListView;
 import javafx.scene.control.Tab;
 import javafx.scene.control.TabPane;
 
+import javax.swing.DefaultListModel;
+import javax.swing.JList;
+
+
 import javafx.scene.control.TextField;
 import javafx.stage.FileChooser;
+
+import com.google.common.cache.CacheBuilder;
+import com.google.common.cache.LoadingCache;
+import com.google.common.collect.HashMultiset;
+import com.google.common.collect.Multimap;
+import com.google.common.collect.Multiset;
+import com.google.common.collect.Multiset.Entry;
+
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.HashSet;
+import java.util.Iterator;
+import javafx.scene.control.ScrollBar;
+import javax.crypto.SecretKey;
+import javax.swing.JComboBox;
 
 /**
  *
@@ -34,6 +66,9 @@ import javafx.stage.FileChooser;
  */
 public class FXMLDocumentController implements Initializable {
     
+    @FXML private ScrollBar matchSlider;
+    @FXML private ListView<StringPair> search_result;
+    @FXML private TextField search_input;
     @FXML private ListView<String> uploadlist;
     @FXML private TabPane tab_pane;
     @FXML private Tab welcomepanel;
@@ -44,8 +79,16 @@ public class FXMLDocumentController implements Initializable {
     @FXML private Button btnbrowse;
     @FXML FileChooser filechooser = new FileChooser();
     @FXML Desktop desktop = Desktop.getDesktop();
-    public File file;
+    public File selectedFile;
     final ObservableList<String> listitems = FXCollections.observableArrayList("");
+    //final List<StringPair> searchlist = FXCollections.observableArrayList<>("fileId", "filename");
+    public static LoadingCache<String, Set<StringPair>> cache = CacheBuilder.newBuilder().maximumSize(100)
+			.expireAfterAccess(5, TimeUnit.MINUTES).build(new QueryCacheLoader());
+    private static List<Set<StringPair>> listSet = new ArrayList<>();
+    private JList<StringPair> list;
+    private DefaultListModel<StringPair> searchResults;
+    private JComboBox<KeyItem> keyFile;
+    private List<StringPair> myList = new ArrayList<>();
     
     @FXML
     private void handleChangeUpload(){
@@ -64,12 +107,12 @@ public class FXMLDocumentController implements Initializable {
         }*/       
         
         filechooser.setTitle("Select a file to upload");
-        file = filechooser.showOpenDialog(filepath.getScene().getWindow());
+        selectedFile = filechooser.showOpenDialog(filepath.getScene().getWindow());
         
-        if(file != null){
+        if(selectedFile != null){
             //ClientWindow.selectedFile = file;
             //openFile(file);
-            filepath.setText(file.getAbsolutePath());
+            filepath.setText(selectedFile.getAbsolutePath());
             //listitems.add(filepath.getText());
             writeLog("Selected File: " + filepath.getText());
         }
@@ -88,10 +131,10 @@ public class FXMLDocumentController implements Initializable {
     }
     @FXML
     private void handleUploadbtn(){
-        if (filepath.getText() != ""){
+        if (!filepath.getText().isEmpty()){
             File fileFromType = new File(filepath.getText());
                 if(fileFromType.isAbsolute() && fileFromType.exists()){
-                    //ClientWindow.selectedFile = fileFromType;
+                    selectedFile = fileFromType;
                 } else {
                     notice("Invalid path to file");
                     return;
@@ -103,10 +146,10 @@ public class FXMLDocumentController implements Initializable {
 						
         writeLog("Encrypting file...");
         //for now uses same key to encrypt keywords
-        //String key = UUID.randomUUID().toString();
-        //Map<String, StringPair> map = SSE.EDBSetup(ClientWindow.selectedFile, AESCTR.secretKey, key);
-        //ObjectMapper mapper = new ObjectMapper();
-        /*try {
+        String key = UUID.randomUUID().toString();
+        Map<String, StringPair> map = SSE.EDBSetup(selectedFile, AESCTR.secretKey, key);
+        ObjectMapper mapper = new ObjectMapper();
+        try {
             String json = mapper.writeValueAsString(map);
             System.out.println(json);
             writeLog("Indexing file...");
@@ -115,17 +158,93 @@ public class FXMLDocumentController implements Initializable {
             e1.printStackTrace();
             writeLog("Upload failed!");
             return;
-        }*/
+        }
         writeLog("Uploading file...");
-        //FileUtils.uploadFile(ClientWindow.selectedFile, key, AESCTR.secretKey);
-        //ClientWindow.writeLog("Upload successful!");
-        writeLog("Upload Successful!");
-			
-        
-        
+        FileUtils.uploadFile(selectedFile, key, AESCTR.secretKey);
+        writeLog("Upload successful!");
+        notice("Upload Completed!");
+    }
+    /*
+    @FXML
+    private void handleSearchbtn(){
+        if (AESCTR.secretKey == null) {
+            notice("Please generate or choose a key");
+            return;
+        }
+	// Split query into keywords
+	String[] keywords = search_input.getText().trim().toLowerCase().split("[^\\w']+");
+	listSet.clear();
+        for (String keyword : keywords) {
+            if (keyword.isEmpty()) continue;
+            try {
+                listSet.add(cache.get(keyword));
+            } catch (ExecutionException ex) {
+            // Some error? Do nothing for now
+            ex.printStackTrace();
+            }
+        }
+        matchSlider.setMax(keywords.length);
+        matchSlider.setMin(1);
+        matchSlider.setValue(keywords.length);
+        getMatchHandler(list, searchResults);
         
     }
+    @FXML
+    private void getMatchHandler(JList<StringPair> list, DefaultListModel<StringPair> searchResults){
+        int min = (int) matchSlider.getValue();
+        Set<StringPair> results = intersect(listSet, min);
+        populateResults(results, list, searchResults);
+        
+    }
+    @FXML
+    private void populateResults(Set<StringPair> results, JList<StringPair> list, DefaultListModel<StringPair> searchResults) {
+        // Add results to gui, and set selected
+        searchResults.clear();
+        search_result.getItems().clear();
+        if (results.isEmpty()) {
+            myList.add(new StringPair("", "No results..."));
+            searchResults.addElement(new StringPair("", "No results..."));
+            list.setEnabled(false);
+        } else {
+            for (StringPair result : results) {
+                myList.add(result);
+                searchResults.addElement(result);
+            }
+        ObservableList<StringPair> myObs = FXCollections.observableList(myList);
+        search_result.setItems(myObs);
+        list.setSelectedIndex(0);
+        list.setEnabled(true);
+        }
+    }
+    @FXML
+    private void handleDownloadbtn(){
+        downloadfromlist();
+    }
     
+    @FXML
+    private void downloadfromlist(){
+        if (search_result.getSelectionModel().getSelectedIndex() >= 0) {
+            FileChooser fileChooser = new FileChooser();
+            fileChooser.setTitle("Select a file...");
+            //fileChooser.setButtonText("Save");
+            
+            // file chooser to save file
+            selectedFile = filechooser.showOpenDialog(filepath.getScene().getWindow());
+            //if(fileChooser.showOpenDialog(null) == JFileChooser.APPROVE_OPTION) {
+                //JOptionPane.showMessageDialog(null, "Downloading file: " + list.getSelectedValue() + "[" + list.getSelectedIndex() + "]");
+            String path = selectedFile.getAbsolutePath();
+            FileUtils.downloadFile(path, list.getSelectedValue().getFileId(), AESCTR.secretKey);
+                //ClientWindow.writeLog("Downloaded to " + path);
+            notice("Downloaded to " + path);
+        //}
+        } else {
+        // maybe produce an error message
+            System.out.println("No file selected");
+            notice("No File Selected");
+        }
+        
+    }
+    */
     private void writeLog(String info){
         //uploadlist.append("info");
         listitems.add(info);
@@ -138,11 +257,107 @@ public class FXMLDocumentController implements Initializable {
         warn.setTitle("Notice!");
         warn.setHeaderText(null);
         warn.setContentText(note);
+        warn.showAndWait();
                
     }
+    /*
+    private static Set<StringPair> intersect(List<Set<StringPair>> sets, int min) {
+        if (sets.size() < 1) {
+            return Collections.emptySet();
+        } else if(sets.size() <= min) {
+            return intersect(sets);
+        }
+        // Adds each result to multiset and counts
+        Multiset<StringPair> bag = HashMultiset.create();
+        for (Set<StringPair> set : sets) {
+            for (StringPair str : set) {
+                bag.add(str);
+            }
+        }
+        // Only keep results with a count greater than min
+        Set<StringPair> newSet = new HashSet<>();
+        for (Entry<StringPair> e : bag.entrySet()) {
+            if (e.getCount() >= min) {
+                newSet.add(e.getElement());
+            }
+        }
+        return newSet;
+    }
+    
+    private static Set<StringPair> intersect(List<Set<StringPair>> sets) {
+        if (sets.size() < 1) {
+            return Collections.emptySet();
+        }
+        // Sort sets by size (ascending)
+        Collections.sort(sets, new Comparator<Set<StringPair>>() {
+            @Override
+            public int compare(Set<StringPair> o1, Set<StringPair> o2) {
+                return Integer.compare(o1.size(), o2.size());
+            }
+        });
+		
+        Set<StringPair> newSet = new HashSet<>(sets.get(0));
+        for (Set<StringPair> set : sets) {
+            if (newSet.size() < 1) break;
+            if (set == newSet) continue;
+			
+            Iterator<StringPair> it = newSet.iterator();
+            while (it.hasNext()) {
+                if (!set.contains(it.next())) {
+                    it.remove();
+                }
+            }
+        }
+		
+        return newSet;
+    }
+    */
     @Override
     public void initialize(URL url, ResourceBundle rb) {
-        // TODO
+        /*
+        File folder = new File("keys");
+        folder.mkdirs();
+        File[] files = folder.listFiles();
+        boolean hasDefaultKey = false;
+        for (File file : files) {
+            try {
+                ObjectInputStream in = new ObjectInputStream(new FileInputStream(file.getAbsolutePath()));
+                SecretKey kS = (SecretKey) in.readObject(); // Set secretKey
+                in.close();
+                keyFile.addItem(new KeyItem(kS, file.getName()));
+                if (file.getName().equals("defaultkey")) {
+                    hasDefaultKey = true;
+                }
+            } catch (IOException | ClassNotFoundException ex) {
+            // Not a key file, don't add to list
+            }
+        }
+	
+    	// Load default key
+        if (hasDefaultKey) {
+            keyFile.setSelectedItem(new KeyItem(null, "defaultkey"));
+            AESCTR.secretKey = keyFile.getItemAt(keyFile.getSelectedIndex()).getKey();
+            writeLog("Successfully loaded key: defaultkey");
+        } else {
+            writeLog("No default key found, generating new one");
+            File file = new File("keys/defaultkey");
+            SecretKey newKey = AESCTR.generateKey();
+        // Serialize (out)
+            try {
+                ObjectOutputStream out = new ObjectOutputStream(new FileOutputStream(file.getAbsolutePath()));
+                out.writeObject(newKey);
+                out.close();
+
+                AESCTR.secretKey = newKey; // Set secretKey
+				
+                KeyItem keyItem = new KeyItem(newKey, file.getName());
+                keyFile.addItem(keyItem);
+                keyFile.setSelectedItem(keyItem);
+            } catch (IOException ex2) {
+                writeLog("Failed to generate a default key");
+                ex2.printStackTrace();
+            }
+        }*/
     }    
     
 }

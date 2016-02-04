@@ -56,6 +56,7 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashSet;
 import java.util.Iterator;
+import javafx.scene.control.ComboBox;
 import javafx.scene.control.ScrollBar;
 import javax.crypto.SecretKey;
 import javax.swing.JComboBox;
@@ -66,7 +67,7 @@ import javax.swing.JComboBox;
  */
 public class FXMLDocumentController implements Initializable {
     
-    @FXML private ScrollBar matchSlider;
+    //@FXML private ScrollBar matchSlider;
     @FXML private ListView<StringPair> search_result;
     @FXML private TextField search_input;
     @FXML private ListView<String> uploadlist;
@@ -87,8 +88,9 @@ public class FXMLDocumentController implements Initializable {
     private static List<Set<StringPair>> listSet = new ArrayList<>();
     private JList<StringPair> list;
     private DefaultListModel<StringPair> searchResults;
-    private JComboBox<KeyItem> keyFile;
+    @FXML private ComboBox<KeyItem> keyFile;
     private List<StringPair> myList = new ArrayList<>();
+    private List<KeyItem> keylist = new ArrayList<>();
     
     @FXML
     private void handleChangeUpload(){
@@ -101,10 +103,10 @@ public class FXMLDocumentController implements Initializable {
     }
     @FXML
     private void handleBrowseBtn(){
-        /*if(AESCTR.secretKey = null) {
+        if(AESCTR.secretKey == null) {
             notice("Please generate or choose a key!");
             return;
-        }*/       
+        }       
         
         filechooser.setTitle("Select a file to upload");
         selectedFile = filechooser.showOpenDialog(filepath.getScene().getWindow());
@@ -131,6 +133,7 @@ public class FXMLDocumentController implements Initializable {
     }
     @FXML
     private void handleUploadbtn(){
+        
         if (!filepath.getText().isEmpty()){
             File fileFromType = new File(filepath.getText());
                 if(fileFromType.isAbsolute() && fileFromType.exists()){
@@ -144,27 +147,31 @@ public class FXMLDocumentController implements Initializable {
             return;
         }
 						
-        writeLog("Encrypting file...");
+        System.out.println("Encrypting file...");
         //for now uses same key to encrypt keywords
+        
         String key = UUID.randomUUID().toString();
         Map<String, StringPair> map = SSE.EDBSetup(selectedFile, AESCTR.secretKey, key);
         ObjectMapper mapper = new ObjectMapper();
         try {
             String json = mapper.writeValueAsString(map);
             System.out.println(json);
-            writeLog("Indexing file...");
+            System.out.println("Indexing file...");
             HttpUtil.HttpPost(json);
         } catch (JsonProcessingException e1) {
             e1.printStackTrace();
             writeLog("Upload failed!");
+            System.out.println("Upload failed!");
             return;
         }
-        writeLog("Uploading file...");
+        
+        System.out.println("Uploading file...");
         FileUtils.uploadFile(selectedFile, key, AESCTR.secretKey);
         writeLog("Upload successful!");
+        System.out.println("Upload successful!");
         notice("Upload Completed!");
     }
-    /*
+    
     @FXML
     private void handleSearchbtn(){
         if (AESCTR.secretKey == null) {
@@ -173,6 +180,7 @@ public class FXMLDocumentController implements Initializable {
         }
 	// Split query into keywords
 	String[] keywords = search_input.getText().trim().toLowerCase().split("[^\\w']+");
+        System.out.println("keywords seperated");
 	listSet.clear();
         for (String keyword : keywords) {
             if (keyword.isEmpty()) continue;
@@ -183,42 +191,55 @@ public class FXMLDocumentController implements Initializable {
             ex.printStackTrace();
             }
         }
-        matchSlider.setMax(keywords.length);
-        matchSlider.setMin(1);
-        matchSlider.setValue(keywords.length);
-        getMatchHandler(list, searchResults);
+        //matchSlider.setMax(keywords.length);
+        //matchSlider.setMin(1);
+        //matchSlider.setValue(keywords.length);
+        System.out.println("matchhandler called");
+        Set<StringPair> results = intersect(listSet, keywords.length);
+        System.out.println("populate Results called");
+        //getMatchHandler(list, searchResults);
+        populateResults(results);
+        
         
     }
     @FXML
     private void getMatchHandler(JList<StringPair> list, DefaultListModel<StringPair> searchResults){
-        int min = (int) matchSlider.getValue();
-        Set<StringPair> results = intersect(listSet, min);
-        populateResults(results, list, searchResults);
+        //int min = (int) matchSlider.getValue();
+        //System.out.println(min);
+        Set<StringPair> results = intersect(listSet);
+        System.out.println("populateResults called");
+        //populateResults(results, list, searchResults);
+        
         
     }
     @FXML
-    private void populateResults(Set<StringPair> results, JList<StringPair> list, DefaultListModel<StringPair> searchResults) {
+    private void populateResults(Set<StringPair> results) {
         // Add results to gui, and set selected
-        searchResults.clear();
+        //searchResults.clear();
         search_result.getItems().clear();
+        System.out.println("list cleared");
         if (results.isEmpty()) {
             myList.add(new StringPair("", "No results..."));
-            searchResults.addElement(new StringPair("", "No results..."));
-            list.setEnabled(false);
+            //searchResults.addElement(new StringPair("", "No results..."));
+            //list.setEnabled(false);
+            System.out.println("no results");
         } else {
             for (StringPair result : results) {
                 myList.add(result);
-                searchResults.addElement(result);
+                //searchResults.addElement(result);
             }
         ObservableList<StringPair> myObs = FXCollections.observableList(myList);
         search_result.setItems(myObs);
-        list.setSelectedIndex(0);
-        list.setEnabled(true);
+        //list.setSelectedIndex(0);
+        //list.setEnabled(true);
         }
     }
+    
     @FXML
     private void handleDownloadbtn(){
+        System.out.println("downloadfromlist called");
         downloadfromlist();
+        
     }
     
     @FXML
@@ -226,14 +247,18 @@ public class FXMLDocumentController implements Initializable {
         if (search_result.getSelectionModel().getSelectedIndex() >= 0) {
             FileChooser fileChooser = new FileChooser();
             fileChooser.setTitle("Select a file...");
+            
             //fileChooser.setButtonText("Save");
             
             // file chooser to save file
-            selectedFile = filechooser.showOpenDialog(filepath.getScene().getWindow());
+            selectedFile = filechooser.showSaveDialog(filepath.getScene().getWindow());
+            System.out.println("file chosen");
             //if(fileChooser.showOpenDialog(null) == JFileChooser.APPROVE_OPTION) {
                 //JOptionPane.showMessageDialog(null, "Downloading file: " + list.getSelectedValue() + "[" + list.getSelectedIndex() + "]");
             String path = selectedFile.getAbsolutePath();
-            FileUtils.downloadFile(path, list.getSelectedValue().getFileId(), AESCTR.secretKey);
+            System.out.println("downloading..");
+            FileUtils.downloadFile(path, search_result.getSelectionModel().getSelectedItem().getFileId(), AESCTR.secretKey);
+            System.out.println("file downloaded");
                 //ClientWindow.writeLog("Downloaded to " + path);
             notice("Downloaded to " + path);
         //}
@@ -244,7 +269,7 @@ public class FXMLDocumentController implements Initializable {
         }
         
     }
-    */
+    
     private void writeLog(String info){
         //uploadlist.append("info");
         listitems.add(info);
@@ -260,7 +285,7 @@ public class FXMLDocumentController implements Initializable {
         warn.showAndWait();
                
     }
-    /*
+    
     private static Set<StringPair> intersect(List<Set<StringPair>> sets, int min) {
         if (sets.size() < 1) {
             return Collections.emptySet();
@@ -311,10 +336,10 @@ public class FXMLDocumentController implements Initializable {
 		
         return newSet;
     }
-    */
+    
     @Override
     public void initialize(URL url, ResourceBundle rb) {
-        /*
+     
         File folder = new File("keys");
         folder.mkdirs();
         File[] files = folder.listFiles();
@@ -324,7 +349,10 @@ public class FXMLDocumentController implements Initializable {
                 ObjectInputStream in = new ObjectInputStream(new FileInputStream(file.getAbsolutePath()));
                 SecretKey kS = (SecretKey) in.readObject(); // Set secretKey
                 in.close();
-                keyFile.addItem(new KeyItem(kS, file.getName()));
+                keylist.add(new KeyItem(kS, file.getName()));
+                ObservableList<KeyItem> keyitemlist = FXCollections.observableList(keylist);
+                keyFile.setItems(keyitemlist);
+                //keyFile.addItem(new KeyItem(kS, file.getName()));
                 if (file.getName().equals("defaultkey")) {
                     hasDefaultKey = true;
                 }
@@ -335,11 +363,12 @@ public class FXMLDocumentController implements Initializable {
 	
     	// Load default key
         if (hasDefaultKey) {
-            keyFile.setSelectedItem(new KeyItem(null, "defaultkey"));
-            AESCTR.secretKey = keyFile.getItemAt(keyFile.getSelectedIndex()).getKey();
-            writeLog("Successfully loaded key: defaultkey");
+            keyFile.getSelectionModel().select(new KeyItem(null, "defaultkey"));
+            //keyFile.setSelectedItem(new KeyItem(null, "defaultkey"));
+            AESCTR.secretKey = keyFile.getSelectionModel().getSelectedItem().getKey();
+            System.out.println("Successfully loaded key: defaultkey");
         } else {
-            writeLog("No default key found, generating new one");
+            System.out.println("No default key found, generating new one");
             File file = new File("keys/defaultkey");
             SecretKey newKey = AESCTR.generateKey();
         // Serialize (out)
@@ -351,13 +380,18 @@ public class FXMLDocumentController implements Initializable {
                 AESCTR.secretKey = newKey; // Set secretKey
 				
                 KeyItem keyItem = new KeyItem(newKey, file.getName());
-                keyFile.addItem(keyItem);
-                keyFile.setSelectedItem(keyItem);
+                keylist.add(keyItem);
+                ObservableList<KeyItem> keyitemlist = FXCollections.observableList(keylist);
+                keyFile.setItems(keyitemlist);
+                keyFile.getSelectionModel().select(new KeyItem(null, "defaultkey"));
+                //keyFile.add(keyItem);
+                //keyFile.setSelectedItem(keyItem);
             } catch (IOException ex2) {
-                writeLog("Failed to generate a default key");
+                System.out.println("Failed to generate a default key");
                 ex2.printStackTrace();
             }
-        }*/
+        }
+    
     }    
     
 }

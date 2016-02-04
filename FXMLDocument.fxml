@@ -49,17 +49,22 @@
                <children>
                   <ListView id="search_results" fx:id="search_result" layoutX="15.0" layoutY="78.0" prefHeight="279.0" prefWidth="405.0" />
                   <TextField id="search_bar" fx:id="search_input" layoutX="14.0" layoutY="28.0" prefHeight="25.0" prefWidth="406.0" />
-                  <Button id="search" fx:id="btnsearch" layoutX="437.0" layoutY="28.0" mnemonicParsing="false" prefHeight="25.0" prefWidth="145.0" text="Search" />
+                  <Button id="search" fx:id="btnsearch" layoutX="437.0" layoutY="28.0" mnemonicParsing="false" onAction="#handleSearchbtn" prefHeight="25.0" prefWidth="145.0" text="Search" />
                   <Button id="download" fx:id="btndownload" layoutX="449.0" layoutY="79.0" mnemonicParsing="false" onAction="#handleDownloadbtn" prefHeight="277.0" prefWidth="133.0" text="Download" />
                   <Separator layoutX="117.0" layoutY="59.0" prefWidth="200.0" />
-                  <ScrollBar fx:id="matchSlider" layoutX="420.0" layoutY="79.0" orientation="VERTICAL" prefHeight="277.0" prefWidth="14.0" />
                </children>
             </AnchorPane>
         </content>
       </Tab>
       <Tab fx:id="settingpanel" closable="false" text="Settings">
         <content>
-          <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="254.0" prefWidth="600.0" />
+          <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="254.0" prefWidth="600.0">
+               <children>
+                  <ComboBox fx:id="keyFile" layoutX="225.0" layoutY="34.0" prefWidth="150.0" />
+                  <Button fx:id="deletekey" layoutX="48.0" layoutY="75.0" mnemonicParsing="false" prefHeight="82.0" prefWidth="128.0" text="Delete" />
+                  <Button fx:id="newkey" layoutX="428.0" layoutY="75.0" mnemonicParsing="false" prefHeight="95.0" prefWidth="126.0" text="New" />
+                  <CheckBox fx:id="stemmer" layoutX="257.0" layoutY="177.0" mnemonicParsing="false" text="Use Stemmer" />
+               </children></AnchorPane>
         </content>
       </Tab>
   </tabs>

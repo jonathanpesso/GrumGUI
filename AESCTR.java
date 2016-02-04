@@ -1,4 +1,5 @@
 package javafxapplication2;
+
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
@@ -209,7 +210,7 @@ public class AESCTR {
 
 		return deserializedFile;
     }
-
+/*
     public static void main(final String[] args) {
         final String secret = "owlstead";
         final String secret1 = "owlstead";
@@ -230,4 +231,6 @@ public class AESCTR {
         //byte[] bytePlainText = decryptbytes(byteCipherText, secretKey);
         //System.out.println("Plaintext: " + Arrays.toString(bytePlainText));
     }
+*/
+
 }

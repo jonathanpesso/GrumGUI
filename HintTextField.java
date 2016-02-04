@@ -1,5 +1,5 @@
 package javafxapplication2;
-
+/*
 import java.awt.event.FocusEvent;
 import java.awt.event.FocusListener;
 
@@ -42,3 +42,4 @@ class HintTextField extends JTextField implements FocusListener {
 		showingHint = flag;
 	}
 }
+*/

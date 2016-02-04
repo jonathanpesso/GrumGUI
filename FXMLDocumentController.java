@@ -202,16 +202,8 @@ public class FXMLDocumentController implements Initializable {
         
         
     }
-    @FXML
-    private void getMatchHandler(JList<StringPair> list, DefaultListModel<StringPair> searchResults){
-        //int min = (int) matchSlider.getValue();
-        //System.out.println(min);
-        Set<StringPair> results = intersect(listSet);
-        System.out.println("populateResults called");
-        //populateResults(results, list, searchResults);
+           
         
-        
-    }
     @FXML
     private void populateResults(Set<StringPair> results) {
         // Add results to gui, and set selected

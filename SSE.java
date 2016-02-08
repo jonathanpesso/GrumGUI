@@ -1,5 +1,7 @@
-package javafxapplication2;
+package crypto;
 
+import ClientWindow.FXMLDocumentController;
+import Utils.StringPair;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;

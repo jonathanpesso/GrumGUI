@@ -1,11 +1,8 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
-package javafxapplication2;
+package ClientWindow;
 
-
+import Utils.FileUtils;
+import Utils.HttpUtil;
+import Utils.StringPair;
 import java.awt.Desktop;
 import java.io.File;
 import java.io.IOException;
@@ -22,7 +19,6 @@ import java.util.Map;
 import java.util.UUID;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
-
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.Alert;
@@ -31,23 +27,19 @@ import javafx.scene.control.Button;
 import javafx.scene.control.ListView;
 import javafx.scene.control.Tab;
 import javafx.scene.control.TabPane;
-
 import javax.swing.DefaultListModel;
 import javax.swing.JList;
-
-
 import javafx.scene.control.TextField;
 import javafx.stage.FileChooser;
-
 import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.LoadingCache;
 import com.google.common.collect.HashMultiset;
-import com.google.common.collect.Multimap;
 import com.google.common.collect.Multiset;
 import com.google.common.collect.Multiset.Entry;
-
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import crypto.AESCTR;
+import crypto.SSE;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.ObjectInputStream;
@@ -57,17 +49,12 @@ import java.util.Comparator;
 import java.util.HashSet;
 import java.util.Iterator;
 import javafx.scene.control.ComboBox;
-import javafx.scene.control.ScrollBar;
 import javax.crypto.SecretKey;
 import javax.swing.JComboBox;
+import javax.swing.JOptionPane;
 
-/**
- *
- * @author jonathan
- */
 public class FXMLDocumentController implements Initializable {
     
-    //@FXML private ScrollBar matchSlider;
     @FXML private ListView<StringPair> search_result;
     @FXML private TextField search_input;
     @FXML private ListView<String> uploadlist;
@@ -82,9 +69,10 @@ public class FXMLDocumentController implements Initializable {
     @FXML Desktop desktop = Desktop.getDesktop();
     public File selectedFile;
     final ObservableList<String> listitems = FXCollections.observableArrayList("");
-    //final List<StringPair> searchlist = FXCollections.observableArrayList<>("fileId", "filename");
+    
     public static LoadingCache<String, Set<StringPair>> cache = CacheBuilder.newBuilder().maximumSize(100)
 			.expireAfterAccess(5, TimeUnit.MINUTES).build(new QueryCacheLoader());
+    
     private static List<Set<StringPair>> listSet = new ArrayList<>();
     private JList<StringPair> list;
     private DefaultListModel<StringPair> searchResults;
@@ -92,16 +80,19 @@ public class FXMLDocumentController implements Initializable {
     private List<StringPair> myList = new ArrayList<>();
     private List<KeyItem> keylist = new ArrayList<>();
     
-    @FXML
+    @FXML //Redirects to Upload Tab
     private void handleChangeUpload(){
         tab_pane.getSelectionModel().select(uploadpanel);    
     }
-    
-    @FXML
+    @FXML //Redirects to Settings Tab
+    private void handleChangeSettings(){
+        tab_pane.getSelectionModel().select(settingpanel);    
+    }
+    @FXML //Redirects to Search Tab
     private void handleChangeSearch(){
         tab_pane.getSelectionModel().select(searchpanel); 
     }
-    @FXML
+    @FXML //Lets User choose a file to upload if he has a key
     private void handleBrowseBtn(){
         if(AESCTR.secretKey == null) {
             notice("Please generate or choose a key!");
@@ -119,7 +110,7 @@ public class FXMLDocumentController implements Initializable {
             writeLog("Selected File: " + filepath.getText());
         }
     }
-    
+    //not used for now
     private void openFile(File file) {
         try{
             desktop.open(file);
@@ -131,7 +122,7 @@ public class FXMLDocumentController implements Initializable {
         }
         
     }
-    @FXML
+    @FXML //lets a user upload a file that he/she chose
     private void handleUploadbtn(){
         
         if (!filepath.getText().isEmpty()){
@@ -172,7 +163,7 @@ public class FXMLDocumentController implements Initializable {
         notice("Upload Completed!");
     }
     
-    @FXML
+    @FXML //lets a user search keywords in uploaded files
     private void handleSearchbtn(){
         if (AESCTR.secretKey == null) {
             notice("Please generate or choose a key");
@@ -191,77 +182,60 @@ public class FXMLDocumentController implements Initializable {
             ex.printStackTrace();
             }
         }
-        //matchSlider.setMax(keywords.length);
-        //matchSlider.setMin(1);
-        //matchSlider.setValue(keywords.length);
         System.out.println("matchhandler called");
         Set<StringPair> results = intersect(listSet, keywords.length);
         System.out.println("populate Results called");
-        //getMatchHandler(list, searchResults);
         populateResults(results);
         
         
     }
-           
-        
-    @FXML
+    @FXML // Add results to gui, and set selected
+          // searchResults.clear();
     private void populateResults(Set<StringPair> results) {
-        // Add results to gui, and set selected
-        //searchResults.clear();
         search_result.getItems().clear();
         System.out.println("list cleared");
         if (results.isEmpty()) {
             myList.add(new StringPair("", "No results..."));
-            //searchResults.addElement(new StringPair("", "No results..."));
-            //list.setEnabled(false);
             System.out.println("no results");
         } else {
             for (StringPair result : results) {
                 myList.add(result);
-                //searchResults.addElement(result);
             }
         ObservableList<StringPair> myObs = FXCollections.observableList(myList);
         search_result.setItems(myObs);
-        //list.setSelectedIndex(0);
-        //list.setEnabled(true);
         }
     }
     
-    @FXML
+    @FXML //tells download button to use downloadfromlist()
     private void handleDownloadbtn(){
         System.out.println("downloadfromlist called");
         downloadfromlist();
         
     }
     
-    @FXML
+    @FXML //
     private void downloadfromlist(){
+        //sets a filechooser so user can select where to download selected file
         if (search_result.getSelectionModel().getSelectedIndex() >= 0) {
             FileChooser fileChooser = new FileChooser();
             fileChooser.setTitle("Select a file...");
-            
-            //fileChooser.setButtonText("Save");
-            
+           
             // file chooser to save file
             selectedFile = filechooser.showSaveDialog(filepath.getScene().getWindow());
             System.out.println("file chosen");
-            //if(fileChooser.showOpenDialog(null) == JFileChooser.APPROVE_OPTION) {
-                //JOptionPane.showMessageDialog(null, "Downloading file: " + list.getSelectedValue() + "[" + list.getSelectedIndex() + "]");
             String path = selectedFile.getAbsolutePath();
             System.out.println("downloading..");
             FileUtils.downloadFile(path, search_result.getSelectionModel().getSelectedItem().getFileId(), AESCTR.secretKey);
             System.out.println("file downloaded");
-                //ClientWindow.writeLog("Downloaded to " + path);
             notice("Downloaded to " + path);
-        //}
         } else {
-        // maybe produce an error message
+        // produce an error message
             System.out.println("No file selected");
             notice("No File Selected");
         }
         
     }
-    
+    // writes strings to GUI
     private void writeLog(String info){
         //uploadlist.append("info");
         listitems.add(info);
@@ -329,6 +303,71 @@ public class FXMLDocumentController implements Initializable {
         return newSet;
     }
     
+    
+
+/*@FXML
+
+	private void selectKeyHandler() {
+		
+			public void actionPerformed(ActionEvent e) {
+				Object o = e.getSource();
+				if (!(o instanceof JComboBox)) {
+					throw new IllegalStateException("selectKeyHandler attached to invalid control");
+				}
+				
+				JComboBox<KeyItem> box = (JComboBox<KeyItem>) o;
+				AESCTR.secretKey = box.getItemAt(box.getSelectedIndex()).getKey();
+				ClientWindow.writeLog("Successfully loaded key: " + box.getSelectedItem());
+			}
+}*/
+	
+	@FXML
+	public void handleRemoveKey(JComboBox<KeyItem> keyFile) {
+
+				Object[] options = { "OK", "CANCEL" };
+				if (JOptionPane.showOptionDialog(null, "Are you sure you want to delete the key: " + keyFile.getSelectedItem() + 
+						"?\nThis CANNOT be undone.", "WARNING: Delete Key?", JOptionPane.DEFAULT_OPTION, JOptionPane.WARNING_MESSAGE, 
+						null, options, options[1]) == JOptionPane.OK_OPTION) {
+					String keyName = keyFile.getSelectedItem().toString();
+					File file = new File("keys/" + keyName);
+					if (file.delete()) {
+						writeLog("Successfully deleted key: " + keyName);
+						keyFile.removeItemAt(keyFile.getSelectedIndex());
+					} else {
+						writeLog("Unable to delete file");
+					}
+				}
+			}
+		
+	
+	@FXML
+	public void handleNewKey(JComboBox<KeyItem> keyFile) {
+		
+				String keyName = JOptionPane.showInputDialog("Please enter a name for your key");
+				if (keyName != null && !keyName.isEmpty()) {
+			        SecretKey newKey = AESCTR.generateKey();
+			        
+			        // Serialize (out)
+			        try {
+			        	File file = new File("keys/" + keyName);
+						ObjectOutputStream out = new ObjectOutputStream(new FileOutputStream(file.getAbsolutePath()));
+						out.writeObject(newKey);
+						out.close();
+						
+						// Set key in AES
+						AESCTR.secretKey = newKey;
+						
+						KeyItem keyItem = new KeyItem(newKey, file.getName());
+						keyFile.addItem(keyItem);
+						keyFile.setSelectedItem(keyItem);
+						writeLog("Loaded new key: " + file.getName());
+			        } catch (IOException ex) {
+						ex.printStackTrace();
+					
+				}
+			}
+		};
+
     @Override
     public void initialize(URL url, ResourceBundle rb) {
      
@@ -384,6 +423,4 @@ public class FXMLDocumentController implements Initializable {
             }
         }
     
-    }    
-    
-}
+    }    }

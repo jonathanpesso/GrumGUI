@@ -1,5 +1,9 @@
-package javafxapplication2;
-
+/*
+ * To change this license header, choose License Headers in Project Properties.
+ * To change this template file, choose Tools | Templates
+ * and open the template in the editor.
+ */
+package Utils;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -44,7 +48,6 @@ public class HttpUtil{
 			String jsonString = EntityUtils.toString(response.getEntity());
 			
 			JSONObject myjson = new JSONObject(jsonString);
-
 			Iterator<String> keys = myjson.keys();
 			while(keys.hasNext()){
 				String key = (String) keys.next();
@@ -68,7 +71,6 @@ public class HttpUtil{
 					encIndex.get(key).add(myjson.getString(key));
 				}
 			}
-
 		}
 		
 		catch(IOException e){
@@ -176,9 +178,13 @@ public class HttpUtil{
         }
 
 	}
-	/*
+	
 	public static void main(String[] args){
 		test();
 	}
-	*/
+	
 }
+/**
+ *
+ * @author Yoni
+ */

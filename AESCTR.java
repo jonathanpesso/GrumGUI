@@ -1,5 +1,6 @@
-package javafxapplication2;
+package crypto;
 
+import Utils.StringPair;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;

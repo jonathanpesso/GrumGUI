@@ -1,11 +1,20 @@
-package javafxapplication2;
+/*
+ * To change this license header, choose License Headers in Project Properties.
+ * To change this template file, choose Tools | Templates
+ * and open the template in the editor.
+ */
+package ClientWindow;
 
+import Utils.HttpUtil;
+import Utils.StringPair;
 import java.util.HashSet;
 import java.util.Set;
 
 import javax.crypto.SecretKey;
 
 import com.google.common.cache.CacheLoader;
+import crypto.AESCTR;
+import crypto.SHA256;
 
 //import edu.ucsb.hopefully_unhackable.crypto.AESCTR;
 //import edu.ucsb.hopefully_unhackable.crypto.SHA256;

@@ -1,8 +1,9 @@
-package javafxapplication2;
-
-//import edu.ucsb.hopefully_unhackable.client.KeyItem;
-
-// pair of (file id, file name)
+/*
+ * To change this license header, choose License Headers in Project Properties.
+ * To change this template file, choose Tools | Templates
+ * and open the template in the editor.
+ */
+package Utils;
 public class StringPair {
 	
 	private String fileId;
@@ -56,3 +57,7 @@ public class StringPair {
 	
 	
 }
+/**
+ *
+ * @author Yoni
+ */

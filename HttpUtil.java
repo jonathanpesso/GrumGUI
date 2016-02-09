@@ -82,7 +82,7 @@ public class HttpUtil{
 	//HTTP GET request
 	public static Set<StringPair> HttpGet(String keyWord) {	
 		Set<StringPair> set = null;
-		String url = "http://52.34.59.216:8080/searchfile?query=" + keyWord;
+		String url = "https://52.34.59.216:8443/searchfile?query=" + keyWord;
 		//String url = "http://128.111.43.52:8080/searchfile?query=" + keyWord;
 		try (CloseableHttpClient httpClient = HttpClientBuilder.create().build()) {
 			HttpGet getRequest = new HttpGet(url);
@@ -105,7 +105,7 @@ public class HttpUtil{
 	//HTTP POST request
 	public static void HttpPost(String json){
 		
-		String url = "http://52.34.59.216:8080/indexfile";
+		String url = "https://52.34.59.216:8443/indexfile";
 		//String url = "http://128.111.43.52:8080/indexfile";
 		try(CloseableHttpClient httpClient = HttpClientBuilder.create().build()){
 			HttpPost post = new HttpPost(url);

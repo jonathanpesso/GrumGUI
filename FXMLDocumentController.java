@@ -56,8 +56,11 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.Optional;
+import javafx.scene.control.ButtonType;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.ScrollBar;
+import javafx.scene.control.TextInputDialog;
 import javax.crypto.SecretKey;
 import javax.swing.JComboBox;
 
@@ -80,17 +83,19 @@ public class FXMLDocumentController implements Initializable {
     @FXML private Button btnbrowse;
     @FXML FileChooser filechooser = new FileChooser();
     @FXML Desktop desktop = Desktop.getDesktop();
+    
     public File selectedFile;
     final ObservableList<String> listitems = FXCollections.observableArrayList("");
     //final List<StringPair> searchlist = FXCollections.observableArrayList<>("fileId", "filename");
     public static LoadingCache<String, Set<StringPair>> cache = CacheBuilder.newBuilder().maximumSize(100)
 			.expireAfterAccess(5, TimeUnit.MINUTES).build(new QueryCacheLoader());
     private static List<Set<StringPair>> listSet = new ArrayList<>();
-    private JList<StringPair> list;
-    private DefaultListModel<StringPair> searchResults;
+    //private JList<StringPair> list;
+    //private DefaultListModel<StringPair> searchResults;
     @FXML private ComboBox<KeyItem> keyFile;
     private List<StringPair> myList = new ArrayList<>();
     private List<KeyItem> keylist = new ArrayList<>();
+    public ObservableList<KeyItem> keyitemlist = FXCollections.observableList(keylist);
     
     @FXML
     private void handleChangeUpload(){
@@ -329,6 +334,59 @@ public class FXMLDocumentController implements Initializable {
         return newSet;
     }
     
+    @FXML
+    public void handleRemoveKey(){
+        Alert alert = new Alert(AlertType.CONFIRMATION);
+        alert.setTitle("WARNING: Delete Key?");
+        alert.setHeaderText("Are you sure you want to delete the key:" + keyFile.getSelectionModel().getSelectedItem());
+        alert.setContentText("This CANNOT be undone. Are you sure?");
+        Optional<ButtonType> result = alert.showAndWait();
+        if(result.get() == ButtonType.OK){
+            String keyName = keyFile.getSelectionModel().getSelectedItem().toString();
+            File file = new File("keys/" + keyName);
+            if(file.delete()){
+                System.out.println("Successfully deleted key:" + keyName);
+                keyFile.getSelectionModel().clearSelection();
+            } else{
+                System.out.println("Unable to delete file");
+            }
+        }
+    }
+    
+    @FXML
+    public void handleNewKey(){
+        TextInputDialog dialog = new TextInputDialog();
+        dialog.setTitle("New Key");
+        dialog.setHeaderText(null);
+        dialog.setContentText("Please enter a name for your key");
+        Optional<String> result = dialog.showAndWait();
+        if(result.isPresent()){
+            SecretKey newKey = AESCTR.generateKey();
+            try{
+                File file = new File("keys/" + result.get());
+                ObjectOutputStream out = new ObjectOutputStream(new FileOutputStream(file.getAbsolutePath()));
+                out.writeObject(newKey);
+                out.close();
+
+                AESCTR.secretKey = newKey; // Set secretKey
+				
+                KeyItem keyItem = new KeyItem(newKey, result.get());
+                keylist.add(keyItem);
+                ObservableList<KeyItem> keyitemlist = FXCollections.observableList(keylist);
+                keyFile.setItems(keyitemlist);
+                keyFile.getSelectionModel().select(new KeyItem(null, result.get()));
+                //keyFile.add(keyItem);
+                //keyFile.setSelectedItem(keyItem);
+            } catch (IOException ex2) {
+                System.out.println("Failed to generate a new key");
+                ex2.printStackTrace();
+                
+            }
+            
+        }
+        
+    }
+    
     @Override
     public void initialize(URL url, ResourceBundle rb) {
      
@@ -342,7 +400,7 @@ public class FXMLDocumentController implements Initializable {
                 SecretKey kS = (SecretKey) in.readObject(); // Set secretKey
                 in.close();
                 keylist.add(new KeyItem(kS, file.getName()));
-                ObservableList<KeyItem> keyitemlist = FXCollections.observableList(keylist);
+                //ObservableList<KeyItem> keyitemlist = FXCollections.observableList(keylist);
                 keyFile.setItems(keyitemlist);
                 //keyFile.addItem(new KeyItem(kS, file.getName()));
                 if (file.getName().equals("defaultkey")) {

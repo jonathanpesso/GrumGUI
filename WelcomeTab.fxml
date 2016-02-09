@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?import javafx.scene.text.*?>
+<?import java.lang.*?>
+<?import java.util.*?>
+<?import javafx.scene.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<TabPane fx:id="tab_pane" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="400.0" prefWidth="600.0" tabClosingPolicy="UNAVAILABLE" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="ClientWindow.WelcomeTabController"> 
+<tabs>
+    <Tab fx:id="welcomepanel" closable="false" text="Welcome!" >
+    <content>
+        <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
+               <children>
+                  <Label layoutX="94.0" layoutY="27.0" text="Welcome to Grum!" textAlignment="CENTER">
+                     <font>
+                        <Font name="Century" size="48.0" />
+                     </font>
+                  </Label>
+                  <Label layoutX="62.0" layoutY="110.0" prefHeight="27.0" prefWidth="496.0" text="A data storage application powered by Hopefully Unhackable">
+                     <font>
+                        <Font size="18.0" />
+                     </font>
+                  </Label>
+                  <Separator layoutX="210.0" layoutY="97.0" prefWidth="200.0" />
+                  <Button id="move_to_upload" fx:id="change_to_upload" layoutX="94.0" layoutY="186.0" mnemonicParsing="false" onAction="#handleChangeUpload" prefHeight="146.0" prefWidth="176.0" text="Click Here to Upload a File!" />
+                  <Button id="move_to_search" fx:id="change_to_search" layoutX="350.0" layoutY="186.0" mnemonicParsing="false" onAction="#handleChangeSearch" prefHeight="146.0" prefWidth="176.0" text="Click Here to Search through the Database!" textAlignment="CENTER" wrapText="true" />
+                  <Button layoutX="270.0" layoutY="148.0" mnemonicParsing="false" onAction="#handleChangeSettings" text="Key Settings" />
+               </children></AnchorPane>
+      </content>
+      </Tab>
+</tabs>
+</TabPane>

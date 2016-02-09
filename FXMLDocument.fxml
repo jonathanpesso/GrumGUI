@@ -7,11 +7,54 @@
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
 
-<TabPane fx:id="tab_pane" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="400.0" prefWidth="600.0" tabClosingPolicy="UNAVAILABLE" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="ClientWindow.FXMLDocumentController">
-  <tabs>
+<TabPane fx:id="tab_pane" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="400.0" prefWidth="600.0" tabClosingPolicy="UNAVAILABLE" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="ClientWindow.FXMLDocumentController"> 
+    <tabs>
+    <Tab fx:id="uploadpanel" closable="false" text="Upload" >
+        <content>
+        <fx:include source = "UploadTab.fxml" />
+<!--        <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
+               <children>
+                  <TextField id="browse_bar" fx:id="filepath" layoutX="14.0" layoutY="31.0" prefHeight="25.0" prefWidth="408.0" />
+                  <Button id="browse" fx:id="btnbrowse" layoutX="449.0" layoutY="31.0" mnemonicParsing="false" onAction="#handleBrowseBtn" prefHeight="25.0" prefWidth="120.0" text="Browse" />
+                  <ListView id="file_list" fx:id="uploadlist" layoutX="14.0" layoutY="76.0" prefHeight="264.0" prefWidth="408.0" />
+                  <Separator layoutX="118.0" layoutY="65.0" prefWidth="200.0" />
+                  <ScrollBar layoutX="408.0" layoutY="76.0" orientation="VERTICAL" prefHeight="265.0" prefWidth="14.0" />
+                  <Button id="upload" fx:id="btnupload" layoutX="448.0" layoutY="76.0" mnemonicParsing="false" onAction="#handleUploadbtn" prefHeight="265.0" prefWidth="122.0" text="Upload" />
+                  <Label layoutX="14.0" layoutY="14.0" prefHeight="17.0" prefWidth="408.0" text="Select a File to Upload" />
+               </children></AnchorPane>-->
+      </content>
+    </Tab>
+      <Tab fx:id="searchpanel" closable="false" text="Search">
+        <content>
+            <fx:include source = "SearchTab.fxml" />
+<!--          <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
+               <children>
+                  <ListView id="search_results" fx:id="search_result" layoutX="15.0" layoutY="78.0" prefHeight="279.0" prefWidth="405.0" />
+                  <TextField id="search_bar" fx:id="search_input" layoutX="14.0" layoutY="28.0" prefHeight="25.0" prefWidth="406.0" />
+                  <Button id="search" fx:id="btnsearch" layoutX="437.0" layoutY="28.0" mnemonicParsing="false" onAction="#handleSearchbtn" prefHeight="25.0" prefWidth="145.0" text="Search" />
+                  <Button id="download" fx:id="btndownload" layoutX="449.0" layoutY="79.0" mnemonicParsing="false" onAction="#handleDownloadbtn" prefHeight="277.0" prefWidth="133.0" text="Download" />
+                  <Separator layoutX="117.0" layoutY="59.0" prefWidth="200.0" />
+               </children>
+            </AnchorPane>-->
+        </content>
+      </Tab>
+      <Tab fx:id="settingpanel" closable="false" text="Settings">
+<content>
+    <fx:include source = "SettingsTab.fxml" />
+          <!--        
+          <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="254.0" prefWidth="600.0">
+               <children>
+                  <ComboBox fx:id="keyFile" layoutX="225.0" layoutY="34.0" prefWidth="150.0" />
+                  <Button id="delete" fx:id="deletekey" layoutX="48.0" layoutY="75.0" mnemonicParsing="false" onAction="#handleRemoveKey" prefHeight="82.0" prefWidth="128.0" text="Delete" />
+                  <Button id="newKey" fx:id="newkey" layoutX="428.0" layoutY="75.0" mnemonicParsing="false" onAction="#handleNewKey" prefHeight="95.0" prefWidth="126.0" text="New" />
+                  <CheckBox fx:id="stemmer" layoutX="257.0" layoutY="177.0" mnemonicParsing="false" text="Use Stemmer" />
+               </children></AnchorPane>-->
+        </content>
+      </Tab>
     <Tab fx:id="welcomepanel" closable="false" text="Welcome!">
       <content>
-        <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
+          <fx:include source = "WelcomeTab.fxml" />
+<!--        <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
                <children>
                   <Label layoutX="94.0" layoutY="27.0" text="Welcome to Grum!" textAlignment="CENTER">
                      <font>
@@ -27,46 +70,8 @@
                   <Button id="move_to_upload" fx:id="change_to_upload" layoutX="94.0" layoutY="186.0" mnemonicParsing="false" onAction="#handleChangeUpload" prefHeight="146.0" prefWidth="176.0" text="Click Here to Upload a File!" />
                   <Button id="move_to_search" fx:id="change_to_search" layoutX="350.0" layoutY="186.0" mnemonicParsing="false" onAction="#handleChangeSearch" prefHeight="146.0" prefWidth="176.0" text="Click Here to Search through the Database!" textAlignment="CENTER" wrapText="true" />
                   <Button layoutX="270.0" layoutY="148.0" mnemonicParsing="false" onAction="#handleChangeSettings" text="Key Settings" />
-               </children></AnchorPane>
+               </children></AnchorPane>-->
       </content>
     </Tab>
-    <Tab fx:id="uploadpanel" closable="false" text="Upload">
-      <content>
-        <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
-               <children>
-                  <TextField id="browse_bar" fx:id="filepath" layoutX="14.0" layoutY="31.0" prefHeight="25.0" prefWidth="408.0" />
-                  <Button id="browse" fx:id="btnbrowse" layoutX="449.0" layoutY="31.0" mnemonicParsing="false" onAction="#handleBrowseBtn" prefHeight="25.0" prefWidth="120.0" text="Browse" />
-                  <ListView id="file_list" fx:id="uploadlist" layoutX="14.0" layoutY="76.0" prefHeight="264.0" prefWidth="408.0" />
-                  <Separator layoutX="118.0" layoutY="65.0" prefWidth="200.0" />
-                  <ScrollBar layoutX="408.0" layoutY="76.0" orientation="VERTICAL" prefHeight="265.0" prefWidth="14.0" />
-                  <Button id="upload" fx:id="btnupload" layoutX="448.0" layoutY="76.0" mnemonicParsing="false" onAction="#handleUploadbtn" prefHeight="265.0" prefWidth="122.0" text="Upload" />
-                  <Label layoutX="14.0" layoutY="14.0" prefHeight="17.0" prefWidth="408.0" text="Select a File to Upload" />
-               </children></AnchorPane>
-      </content>
-    </Tab>
-      <Tab fx:id="searchpanel" closable="false" text="Search">
-        <content>
-          <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
-               <children>
-                  <ListView id="search_results" fx:id="search_result" layoutX="15.0" layoutY="78.0" prefHeight="279.0" prefWidth="405.0" />
-                  <TextField id="search_bar" fx:id="search_input" layoutX="14.0" layoutY="28.0" prefHeight="25.0" prefWidth="406.0" />
-                  <Button id="search" fx:id="btnsearch" layoutX="437.0" layoutY="28.0" mnemonicParsing="false" onAction="#handleSearchbtn" prefHeight="25.0" prefWidth="145.0" text="Search" />
-                  <Button id="download" fx:id="btndownload" layoutX="449.0" layoutY="79.0" mnemonicParsing="false" onAction="#handleDownloadbtn" prefHeight="277.0" prefWidth="133.0" text="Download" />
-                  <Separator layoutX="117.0" layoutY="59.0" prefWidth="200.0" />
-               </children>
-            </AnchorPane>
-        </content>
-      </Tab>
-      <Tab fx:id="settingpanel" closable="false" text="Settings">
-        <content>
-          <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="254.0" prefWidth="600.0">
-               <children>
-                  <ComboBox fx:id="keyFile" layoutX="225.0" layoutY="34.0" prefWidth="150.0" />
-                  <Button fx:id="deletekey" layoutX="48.0" layoutY="75.0" mnemonicParsing="false" onAction="#handleRemoveKey" prefHeight="82.0" prefWidth="128.0" text="Delete" />
-                  <Button fx:id="newkey" layoutX="428.0" layoutY="75.0" mnemonicParsing="false" onAction="#handleNewKey" prefHeight="95.0" prefWidth="126.0" text="New" />
-                  <CheckBox fx:id="stemmer" layoutX="257.0" layoutY="177.0" mnemonicParsing="false" text="Use Stemmer" />
-               </children></AnchorPane>
-        </content>
-      </Tab>
   </tabs>
 </TabPane>

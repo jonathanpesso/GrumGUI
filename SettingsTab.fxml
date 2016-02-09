@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?import javafx.scene.text.*?>
+<?import java.lang.*?>
+<?import java.util.*?>
+<?import javafx.scene.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<TabPane fx:id="tab_pane" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="400.0" prefWidth="600.0" tabClosingPolicy="UNAVAILABLE" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="ClientWindow.SettingsHandlers">
+  <tabs>
+      <Tab fx:id="settingpanel" closable="false" text="Settings">
+        <content>
+          <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="254.0" prefWidth="600.0">
+               <children>
+                  <ComboBox fx:id="keyFile" layoutX="225.0" layoutY="34.0" prefWidth="150.0" />
+                  <Button id="delete" fx:id="deletekey" layoutX="48.0" layoutY="75.0" mnemonicParsing="false" onAction="#handleRemoveKey" prefHeight="82.0" prefWidth="128.0" text="Delete" />
+                  <Button id="newKey" fx:id="newkey" layoutX="428.0" layoutY="75.0" mnemonicParsing="false" onAction="#handleNewKey" prefHeight="95.0" prefWidth="126.0" text="New" />
+                  <CheckBox fx:id="stemmer" layoutX="257.0" layoutY="177.0" mnemonicParsing="false" text="Use Stemmer" />
+               </children></AnchorPane>
+        </content>
+      </Tab> 
+      </tabs>
+</TabPane>

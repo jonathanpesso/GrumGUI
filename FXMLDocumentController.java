@@ -57,10 +57,14 @@ import java.util.Comparator;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Optional;
+import javafx.event.EventHandler;
 import javafx.scene.control.ButtonType;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.ScrollBar;
 import javafx.scene.control.TextInputDialog;
+import javafx.scene.input.KeyCode;
+import javafx.scene.input.KeyEvent;
+import javafx.scene.input.MouseEvent;
 import javax.crypto.SecretKey;
 import javax.swing.JComboBox;
 
@@ -97,6 +101,27 @@ public class FXMLDocumentController implements Initializable {
     private List<KeyItem> keylist = new ArrayList<>();
     public ObservableList<KeyItem> keyitemlist = FXCollections.observableList(keylist);
     
+
+    /*
+    @SuppressWarnings("unchecked")
+    public MouseAdapter getListClickHandler() {
+        return new MouseAdapter() {
+            public void mouseClicked(MouseEvent e) {
+                JList<StringPair> list = (JList<StringPair>) e.getSource();
+                if (e.getClickCount() == 2) {
+                    if (search_result.getSelectionModel().getSelectedIndex() != -1) {
+                        downloadfromlist();		        		
+                    }
+                }
+            }
+        };
+    }
+    */    
+    
+    ////////////////////////////////////////////////////////////////////////////////
+    ////////////////////////////////////////////////////////////////////////////////
+    ///////////// WELCOME PANEL HANDLERS ///////////////////////////////////////////
+    ////////////////////////////////////////////////////////////////////////////////
     @FXML
     private void handleChangeUpload(){
         tab_pane.getSelectionModel().select(uploadpanel);    
@@ -106,6 +131,13 @@ public class FXMLDocumentController implements Initializable {
     private void handleChangeSearch(){
         tab_pane.getSelectionModel().select(searchpanel); 
     }
+    
+    ////////////////////////////////////////////////////////////////////////////////
+    ////////////////////////////////////////////////////////////////////////////////
+    ////////////////////////// UPLOAD PANEL HANDLERS ///////////////////////////////
+    ////////////////////////////////////////////////////////////////////////////////
+    ////////////////////////////////////////////////////////////////////////////////
+    
     @FXML
     private void handleBrowseBtn(){
         if(AESCTR.secretKey == null) {
@@ -125,19 +157,10 @@ public class FXMLDocumentController implements Initializable {
         }
     }
     
-    private void openFile(File file) {
-        try{
-            desktop.open(file);
-        } catch (IOException ex) {
-            Logger.getLogger(
-            FXMLDocumentController.class.getName()).log(
-                    Level.SEVERE, null, ex
-            );
-        }
-        
-    }
+    
     @FXML
     private void handleUploadbtn(){
+        AESCTR.secretKey = keyFile.getSelectionModel().getSelectedItem().getKey();
         
         if (!filepath.getText().isEmpty()){
             File fileFromType = new File(filepath.getText());
@@ -177,8 +200,23 @@ public class FXMLDocumentController implements Initializable {
         notice("Upload Completed!");
     }
     
+    /////////////////////////////////////////////////////////////////////////////////
+    /////////////////////////////////////////////////////////////////////////////////
+    ////////////////////// SEARCH PANEL HANDLERS ////////////////////////////////////
+    /////////////////////////////////////////////////////////////////////////////////
+    /////////////////////////////////////////////////////////////////////////////////
+    
+    @FXML
+    public void enterbtn(KeyEvent event){
+        if(event.getCode() == KeyCode.ENTER)
+            handleSearchbtn();
+        
+    }
+    
     @FXML
     private void handleSearchbtn(){
+        AESCTR.secretKey = keyFile.getSelectionModel().getSelectedItem().getKey();
+        //search_result.getItems().clear();
         if (AESCTR.secretKey == null) {
             notice("Please generate or choose a key");
             return;
@@ -267,22 +305,6 @@ public class FXMLDocumentController implements Initializable {
         
     }
     
-    private void writeLog(String info){
-        //uploadlist.append("info");
-        listitems.add(info);
-        uploadlist.setItems(listitems);
-        
-        
-    }
-    private void notice(String note){
-        Alert warn = new Alert(AlertType.INFORMATION);
-        warn.setTitle("Notice!");
-        warn.setHeaderText(null);
-        warn.setContentText(note);
-        warn.showAndWait();
-               
-    }
-    
     private static Set<StringPair> intersect(List<Set<StringPair>> sets, int min) {
         if (sets.size() < 1) {
             return Collections.emptySet();
@@ -334,6 +356,12 @@ public class FXMLDocumentController implements Initializable {
         return newSet;
     }
     
+    ////////////////////////////////////////////////////////////////////////////////
+    ////////////////////////////////////////////////////////////////////////////////
+    ///////////////////////// SETTINGS PANEL HANDLERS //////////////////////////////
+    ////////////////////////////////////////////////////////////////////////////////
+    ////////////////////////////////////////////////////////////////////////////////
+    
     @FXML
     public void handleRemoveKey(){
         Alert alert = new Alert(AlertType.CONFIRMATION);
@@ -346,7 +374,10 @@ public class FXMLDocumentController implements Initializable {
             File file = new File("keys/" + keyName);
             if(file.delete()){
                 System.out.println("Successfully deleted key:" + keyName);
-                keyFile.getSelectionModel().clearSelection();
+                keylist.remove(keyFile.getSelectionModel().getSelectedIndex());
+                ObservableList<KeyItem> keyitemlist = FXCollections.observableList(keylist);
+                keyFile.setItems(keyitemlist);
+                keyFile.getSelectionModel().select(new KeyItem(null, "defaultkey"));
             } else{
                 System.out.println("Unable to delete file");
             }
@@ -386,6 +417,29 @@ public class FXMLDocumentController implements Initializable {
         }
         
     }
+    
+    ///////////////////////////////////////////////////////////////////////////////
+    ///////////////////////////////////////////////////////////////////////////////
+    ////////////// MISC METHODS ///////////////////////////////////////////////////
+    ///////////////////////////////////////////////////////////////////////////////
+    ///////////////////////////////////////////////////////////////////////////////
+    
+    private void writeLog(String info){
+        //uploadlist.append("info");
+        listitems.add(info);
+        uploadlist.setItems(listitems);
+        
+        
+    }
+    private void notice(String note){
+        Alert warn = new Alert(AlertType.INFORMATION);
+        warn.setTitle("Notice!");
+        warn.setHeaderText(null);
+        warn.setContentText(note);
+        warn.showAndWait();
+               
+    }
+    
     
     @Override
     public void initialize(URL url, ResourceBundle rb) {
@@ -442,6 +496,17 @@ public class FXMLDocumentController implements Initializable {
             }
         }
     
+        search_result.setOnMouseClicked(new EventHandler<MouseEvent>(){
+            
+            @Override
+            public void handle(MouseEvent click){
+                if(click.getClickCount() > 1)
+                    downloadfromlist();
+                
+            }
+            
+        });
+        
     }    
     
 }

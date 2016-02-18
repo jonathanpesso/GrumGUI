@@ -35,11 +35,12 @@
                <children>
                   <TextField id="browse_bar" fx:id="filepath" layoutX="14.0" layoutY="31.0" prefHeight="25.0" prefWidth="408.0" />
                   <Button id="browse" fx:id="btnbrowse" layoutX="449.0" layoutY="31.0" mnemonicParsing="false" onAction="#handleBrowseBtn" prefHeight="25.0" prefWidth="120.0" text="Browse" />
-                  <ListView id="file_list" fx:id="uploadlist" layoutX="14.0" layoutY="76.0" prefHeight="264.0" prefWidth="408.0" />
+                  <ListView id="file_list" fx:id="uploadlist" layoutX="14.0" layoutY="76.0" prefHeight="247.0" prefWidth="408.0" />
                   <Separator layoutX="118.0" layoutY="65.0" prefWidth="200.0" />
-                  <ScrollBar layoutX="408.0" layoutY="76.0" orientation="VERTICAL" prefHeight="265.0" prefWidth="14.0" />
-                  <Button id="upload" fx:id="btnupload" layoutX="448.0" layoutY="76.0" mnemonicParsing="false" onAction="#handleUploadbtn" prefHeight="265.0" prefWidth="122.0" text="Upload" />
+                  <ScrollBar layoutX="408.0" layoutY="76.0" orientation="VERTICAL" prefHeight="247.0" prefWidth="14.0" />
+                  <Button id="upload" fx:id="btnupload" layoutX="448.0" layoutY="76.0" mnemonicParsing="false" onAction="#handleUploadbtn" prefHeight="246.0" prefWidth="122.0" text="Upload" />
                   <Label layoutX="14.0" layoutY="14.0" prefHeight="17.0" prefWidth="408.0" text="Select a File to Upload" />
+                  <ProgressBar fx:id="upprogress" layoutX="14.0" layoutY="339.0" prefHeight="18.0" prefWidth="556.0" progress="0.0" />
                </children></AnchorPane>
       </content>
     </Tab>
@@ -47,11 +48,12 @@
         <content>
           <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
                <children>
-                  <ListView id="search_results" fx:id="search_result" layoutX="15.0" layoutY="78.0" prefHeight="279.0" prefWidth="405.0" />
+                  <ListView id="search_results" fx:id="search_result" layoutX="15.0" layoutY="78.0" prefHeight="247.0" prefWidth="405.0" />
                   <TextField id="search_bar" fx:id="search_input" layoutX="14.0" layoutY="28.0" onKeyPressed="#enterbtn" prefHeight="25.0" prefWidth="406.0" />
                   <Button id="search" fx:id="btnsearch" layoutX="437.0" layoutY="28.0" mnemonicParsing="false" onAction="#handleSearchbtn" prefHeight="25.0" prefWidth="145.0" text="Search" />
-                  <Button id="download" fx:id="btndownload" layoutX="449.0" layoutY="79.0" mnemonicParsing="false" onAction="#handleDownloadbtn" prefHeight="277.0" prefWidth="133.0" text="Download" />
+                  <Button id="download" fx:id="btndownload" layoutX="449.0" layoutY="79.0" mnemonicParsing="false" onAction="#handleDownloadbtn" prefHeight="245.0" prefWidth="133.0" text="Download" />
                   <Separator layoutX="117.0" layoutY="59.0" prefWidth="200.0" />
+                  <ProgressBar fx:id="downprogress" layoutX="14.0" layoutY="339.0" prefHeight="18.0" prefWidth="568.0" progress="0.0" />
                </children>
             </AnchorPane>
         </content>

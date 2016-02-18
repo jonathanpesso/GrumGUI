@@ -57,16 +57,20 @@ import java.util.Comparator;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Optional;
+import java.util.concurrent.CancellationException;
+import javafx.concurrent.Task;
+import javafx.concurrent.WorkerStateEvent;
 import javafx.event.EventHandler;
 import javafx.scene.control.ButtonType;
+import javafx.scene.control.CheckBox;
 import javafx.scene.control.ComboBox;
+import javafx.scene.control.ProgressBar;
 import javafx.scene.control.ScrollBar;
 import javafx.scene.control.TextInputDialog;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.input.MouseEvent;
 import javax.crypto.SecretKey;
-import javax.swing.JComboBox;
 
 /**
  *
@@ -75,6 +79,9 @@ import javax.swing.JComboBox;
 public class FXMLDocumentController implements Initializable {
     
     //@FXML private ScrollBar matchSlider;
+    @FXML private ProgressBar upprogress;
+    @FXML private ProgressBar downprogress;
+    @FXML private CheckBox stemmer;
     @FXML private ListView<StringPair> search_result;
     @FXML private TextField search_input;
     @FXML private ListView<String> uploadlist;
@@ -100,8 +107,10 @@ public class FXMLDocumentController implements Initializable {
     private List<StringPair> myList = new ArrayList<>();
     private List<KeyItem> keylist = new ArrayList<>();
     public ObservableList<KeyItem> keyitemlist = FXCollections.observableList(keylist);
-    
-
+    //public Set<String> stemWords = new HashSet<>();
+    private List<File> filelist;
+    private static Set<String> lastUpload = new HashSet<>();
+    private File[] selectedFiles;
     /*
     @SuppressWarnings("unchecked")
     public MouseAdapter getListClickHandler() {
@@ -145,16 +154,23 @@ public class FXMLDocumentController implements Initializable {
             return;
         }       
         
-        filechooser.setTitle("Select a file to upload");
-        selectedFile = filechooser.showOpenDialog(filepath.getScene().getWindow());
-        
-        if(selectedFile != null){
+        filechooser.setTitle("Select the files to upload");
+        filelist = filechooser.showOpenMultipleDialog(filepath.getScene().getWindow());
+        //selectedFile = 
+        StringBuilder sb = new StringBuilder(1024);
+        if(filelist != null){
+            for (File selected_file : filelist){
+                sb.append(selected_file.getAbsolutePath() + " , ");
+                writeLog("selected File: " + selected_file.getName());    
+                }
+            filepath.setText(sb.toString());
+            }
             //ClientWindow.selectedFile = file;
             //openFile(file);
-            filepath.setText(selectedFile.getAbsolutePath());
+            //filepath.setText(selectedFile.getAbsolutePath());
             //listitems.add(filepath.getText());
-            writeLog("Selected File: " + filepath.getText());
-        }
+            //writeLog("Selected File: " + filepath.getText());
+        
     }
     
     
@@ -162,42 +178,121 @@ public class FXMLDocumentController implements Initializable {
     private void handleUploadbtn(){
         AESCTR.secretKey = keyFile.getSelectionModel().getSelectedItem().getKey();
         
-        if (!filepath.getText().isEmpty()){
-            File fileFromType = new File(filepath.getText());
-                if(fileFromType.isAbsolute() && fileFromType.exists()){
-                    selectedFile = fileFromType;
-                } else {
+        if (filelist != null){
+            for(File selected_file : filelist){
+                //String filepath = selected_file.getAbsolutePath();
+                if(lastUpload.contains(filepath)){
+                    Alert alert = new Alert(AlertType.CONFIRMATION);
+                    alert.setTitle("Are you sure?");
+                    alert.setHeaderText(null);
+                    alert.setContentText("You just uploaded " + filepath + ", are you sure you want to upload it again?");
+                    ButtonType yesbtn = new ButtonType("Yes");
+                    ButtonType nobtn = new ButtonType("No");
+                    alert.getButtonTypes().setAll(yesbtn, nobtn);
+                    Optional<ButtonType> result = alert.showAndWait();
+                    if(result.get() == yesbtn)
+                        ;
+                    if(result.get() == nobtn)
+                        return;    
+                }
+            }
+            int y = 0;
+            selectedFiles = new File[filelist.size()];
+            for(File fil : filelist) {
+                if(fil.isAbsolute() && fil.exists()){
+                    selectedFiles[y] = fil;
+                    y++;
+                }
+                else{
                     notice("Invalid path to file");
                     return;
                 }
+            }
         } else {
             notice("Please select a file");
             return;
-        }
-						
+        }					
         System.out.println("Encrypting file...");
         //for now uses same key to encrypt keywords
+        Task<Boolean> task = new Task<Boolean>() {
+            @Override protected Boolean call() throws Exception {
+                String key = UUID.randomUUID().toString();
+                updateProgress(5,100);
+                Map<String, ArrayList<StringPair>> map = SSE.EDBSetup(selectedFiles, AESCTR.secretKey, key, stemmer.isSelected());
+                updateProgress(20, 100);
+                ObjectMapper mapper = new ObjectMapper();
+                try{
+                    String json = mapper.writeValueAsString(map);
+                    updateProgress(50, 100);
+                    HttpUtil.HttpPost(json);
+                    updateProgress(60, 100);                    
+                } catch (JsonProcessingException e1){
+                    e1.printStackTrace();
+                    return false;
+                }
+                for (File fi : selectedFiles) {
+                    System.out.println("Uploading" + fi.getAbsolutePath());
+                    FileUtils.uploadFile(fi, key, AESCTR.secretKey);
+                }
+
+                updateProgress(100, 100);
+                return true;
+            }
+            
+            
+        };
         
-        String key = UUID.randomUUID().toString();
-        Map<String, StringPair> map = SSE.EDBSetup(selectedFile, AESCTR.secretKey, key);
-        ObjectMapper mapper = new ObjectMapper();
-        try {
-            String json = mapper.writeValueAsString(map);
-            System.out.println(json);
-            System.out.println("Indexing file...");
-            HttpUtil.HttpPost(json);
-        } catch (JsonProcessingException e1) {
-            e1.printStackTrace();
-            writeLog("Upload failed!");
-            System.out.println("Upload failed!");
-            return;
-        }
+        task.setOnSucceeded(new EventHandler<WorkerStateEvent>(){
+           @Override
+           public void handle(WorkerStateEvent event){
+               System.out.println("Upload Succeeded");
+               notice("Upload Complete!");
+               lastUpload.clear();
+               for(File f : selectedFiles){
+                   lastUpload.add(f.getAbsolutePath());
+               }
+           }
+        });
         
-        System.out.println("Uploading file...");
-        FileUtils.uploadFile(selectedFile, key, AESCTR.secretKey);
-        writeLog("Upload successful!");
-        System.out.println("Upload successful!");
-        notice("Upload Completed!");
+        task.setOnFailed(new EventHandler<WorkerStateEvent>(){
+           @Override
+           public void handle(WorkerStateEvent event){
+               System.out.println("Upload Failed");
+               throw new UnsupportedOperationException("Failed.");
+           }           
+        });
+        
+        task.setOnCancelled(new EventHandler<WorkerStateEvent>(){
+           @Override
+           public void handle(WorkerStateEvent event) {
+               System.out.println("Upload Cancelled!");
+               throw new CancellationException("Cancelled.");
+           }
+        });
+        
+        upprogress.progressProperty().bind(task.progressProperty());
+        //new Thread(task).start();
+        Thread up = new Thread(task);
+        up.setDaemon(true);
+        up.start();
+//        String key = UUID.randomUUID().toString();
+//        Map<String, StringPair> map = SSE.EDBSetup(selectedFile, AESCTR.secretKey, key, stemmer.isSelected());
+//        ObjectMapper mapper = new ObjectMapper();
+//        try {
+//            String json = mapper.writeValueAsString(map);
+//            System.out.println(json);
+//            System.out.println("Indexing file...");
+//            HttpUtil.HttpPost(json);
+//        } catch (JsonProcessingException e1) {
+//            e1.printStackTrace();
+//            writeLog("Upload failed!");
+//            System.out.println("Upload failed!");
+//            return;
+//        }
+        
+        //.out.println("Uploading file...");
+        //FileUtils.uploadFile(selectedFile, key, AESCTR.secretKey);
+
     }
     
     /////////////////////////////////////////////////////////////////////////////////
@@ -221,27 +316,92 @@ public class FXMLDocumentController implements Initializable {
             notice("Please generate or choose a key");
             return;
         }
-	// Split query into keywords
-	String[] keywords = search_input.getText().trim().toLowerCase().split("[^\\w']+");
-        System.out.println("keywords seperated");
-	listSet.clear();
-        for (String keyword : keywords) {
-            if (keyword.isEmpty()) continue;
-            try {
-                listSet.add(cache.get(keyword));
-            } catch (ExecutionException ex) {
-            // Some error? Do nothing for now
-            ex.printStackTrace();
+       
+        Task<Set<String>> task = new Task<Set<String>>() {
+          @Override
+          protected Set<String> call() throws Exception {
+              String[] keywords = search_input.getText().trim().toLowerCase().split("[^\\w']+");
+              Set<String> stemWords = new HashSet<>();
+              for(String word : keywords) {
+                  if(Stopper.isStop(word)) continue;
+                  if(stemmer.isSelected()) {
+                      stemWords.add(Stemmer.getStem(word));
+                  } else {
+                      stemWords.add(word);
+                  }
+                  
+              }
+          System.out.println("Searching: " + stemWords);
+          listSet.clear();
+          for(String keyword : stemWords) {
+              if(keyword.isEmpty()) continue;
+              try {
+                  listSet.add(cache.get(keyword));
+              } catch (ExecutionException ex) {
+                  ex.printStackTrace();
+              }
+              
+          }
+          
+          return stemWords;
+          }
+            
+        };
+        
+        task.setOnSucceeded(new EventHandler<WorkerStateEvent>(){
+            @Override
+            public void handle(WorkerStateEvent event) {
+                System.out.println("calling intersect");
+                Set<StringPair> results = intersect(listSet, listSet.size());
+                System.out.println("populate results called");
+                populateResults(results);
+                
+
+        
             }
-        }
-        //matchSlider.setMax(keywords.length);
-        //matchSlider.setMin(1);
-        //matchSlider.setValue(keywords.length);
-        System.out.println("matchhandler called");
-        Set<StringPair> results = intersect(listSet, keywords.length);
-        System.out.println("populate Results called");
-        //getMatchHandler(list, searchResults);
-        populateResults(results);
+        
+        });
+        
+        task.setOnFailed(new EventHandler<WorkerStateEvent>() {
+           @Override
+           public void handle(WorkerStateEvent event) {
+               System.out.println("query seperation failed");
+               throw new UnsupportedOperationException("Failed.");
+           }
+        });
+        
+        task.setOnCancelled(new EventHandler<WorkerStateEvent>() {
+           @Override
+           public void handle(WorkerStateEvent event) {
+               System.out.println("operation cancelled");
+               throw new CancellationException("Cancelled.");
+           }
+        });
+
+        Thread search = new Thread(task);
+        search.setDaemon(true);
+        search.start();
+	// Split query into keywords
+//	String[] keywords = search_input.getText().trim().toLowerCase().split("[^\\w']+");
+//        System.out.println("keywords seperated");
+//	listSet.clear();
+//        for (String keyword : keywords) {
+//            if (keyword.isEmpty()) continue;
+//            try {
+//                listSet.add(cache.get(keyword));
+//            } catch (ExecutionException ex) {
+//            // Some error? Do nothing for now
+//            ex.printStackTrace();
+//            }
+//        }
+//        //matchSlider.setMax(keywords.length);
+//        //matchSlider.setMin(1);
+//        //matchSlider.setValue(keywords.length);
+//        System.out.println("matchhandler called");
+//        Set<StringPair> results = intersect(listSet, keywords.length);
+//        System.out.println("populate Results called");
+//        //getMatchHandler(list, searchResults);
+//        populateResults(results);
         
         
     }
@@ -252,19 +412,23 @@ public class FXMLDocumentController implements Initializable {
         // Add results to gui, and set selected
         //searchResults.clear();
         search_result.getItems().clear();
-        System.out.println("list cleared");
+        myList.clear();
+        System.out.println("cleared search list");
         if (results.isEmpty()) {
             myList.add(new StringPair("", "No results..."));
             //searchResults.addElement(new StringPair("", "No results..."));
             //list.setEnabled(false);
+            
+            ObservableList<StringPair> myObs = FXCollections.observableList(myList);
+            search_result.setItems(myObs);
             System.out.println("no results");
         } else {
             for (StringPair result : results) {
                 myList.add(result);
                 //searchResults.addElement(result);
             }
-        ObservableList<StringPair> myObs = FXCollections.observableList(myList);
-        search_result.setItems(myObs);
+            ObservableList<StringPair> myObs = FXCollections.observableList(myList);
+            search_result.setItems(myObs);
         //list.setSelectedIndex(0);
         //list.setEnabled(true);
         }
@@ -292,11 +456,54 @@ public class FXMLDocumentController implements Initializable {
                 //JOptionPane.showMessageDialog(null, "Downloading file: " + list.getSelectedValue() + "[" + list.getSelectedIndex() + "]");
             String path = selectedFile.getAbsolutePath();
             System.out.println("downloading..");
-            FileUtils.downloadFile(path, search_result.getSelectionModel().getSelectedItem().getFileId(), AESCTR.secretKey);
-            System.out.println("file downloaded");
-                //ClientWindow.writeLog("Downloaded to " + path);
-            notice("Downloaded to " + path);
+            Task<Boolean> download = new Task<Boolean>() {
+                @Override
+                protected Boolean call() throws Exception {
+                    try {
+                        FileUtils.downloadFile(path, search_result.getSelectionModel().getSelectedItem().getFileId(), AESCTR.secretKey);
+                        updateProgress(100, 100);
+                    } catch (Exception ex) {
+                        ex.printStackTrace();
+                        return false;
+                    }
+                    return true;
+                }
+                
+            };
+            
+            download.setOnSucceeded(new EventHandler<WorkerStateEvent>() {
+                @Override
+                public void handle(WorkerStateEvent event) {
+                    System.out.println("Download Complete!");
+                    notice("File Downloaded to: " + path);
+                } 
+            });
+            
+            download.setOnFailed(new EventHandler<WorkerStateEvent>() {
+                @Override
+                public void handle(WorkerStateEvent event) {
+                    System.out.println("Download failed!");
+                    throw new UnsupportedOperationException("Failed.");
+                }
+            });
+            
+            download.setOnCancelled(new EventHandler<WorkerStateEvent>() {
+               @Override
+               public void handle(WorkerStateEvent event) {
+                   System.out.println("Download cancelled!");
+                   throw new CancellationException("Cancelled.");
+               }
+            });
+//            FileUtils.downloadFile(path, search_result.getSelectionModel().getSelectedItem().getFileId(), AESCTR.secretKey);
+//            System.out.println("file downloaded");
+//                //ClientWindow.writeLog("Downloaded to " + path);
+//            notice("Downloaded to " + path);
         //}
+            downprogress.progressProperty().bind(download.progressProperty());
+            //new Thread(task).start();
+            Thread down = new Thread(download);
+            down.setDaemon(true);
+            down.start();
         } else {
         // maybe produce an error message
             System.out.println("No file selected");
@@ -307,8 +514,10 @@ public class FXMLDocumentController implements Initializable {
     
     private static Set<StringPair> intersect(List<Set<StringPair>> sets, int min) {
         if (sets.size() < 1) {
+            System.out.println("EMPTY SET");
             return Collections.emptySet();
         } else if(sets.size() <= min) {
+            System.out.println("CALLING OTHER INTERSECT");
             return intersect(sets);
         }
         // Adds each result to multiset and counts
@@ -330,8 +539,10 @@ public class FXMLDocumentController implements Initializable {
     
     private static Set<StringPair> intersect(List<Set<StringPair>> sets) {
         if (sets.size() < 1) {
+            System.out.println("EMPTY SET");
             return Collections.emptySet();
         }
+        System.out.println("NOT AN EMPTY SET");
         // Sort sets by size (ascending)
         Collections.sort(sets, new Comparator<Set<StringPair>>() {
             @Override
@@ -361,6 +572,21 @@ public class FXMLDocumentController implements Initializable {
     ///////////////////////// SETTINGS PANEL HANDLERS //////////////////////////////
     ////////////////////////////////////////////////////////////////////////////////
     ////////////////////////////////////////////////////////////////////////////////
+    @FXML
+    public void keychanged(){
+        Alert confirm = new Alert(AlertType.CONFIRMATION);
+        confirm.setTitle("Are you sure?");
+        confirm.setHeaderText(null);
+        confirm.setContentText("Confirm you are changing keys");
+        Optional<ButtonType> response = confirm.showAndWait();
+        if(response.get() == ButtonType.OK){
+            AESCTR.secretKey = keyFile.getSelectionModel().getSelectedItem().getKey();
+            cache.invalidateAll();
+        }
+        
+        
+    }
+    
     
     @FXML
     public void handleRemoveKey(){
@@ -443,7 +669,9 @@ public class FXMLDocumentController implements Initializable {
     
     @Override
     public void initialize(URL url, ResourceBundle rb) {
-     
+        
+        stemmer.setSelected(true);
+        stemmer.setIndeterminate(false);
         File folder = new File("keys");
         folder.mkdirs();
         File[] files = folder.listFiles();
@@ -485,7 +713,7 @@ public class FXMLDocumentController implements Initializable {
 				
                 KeyItem keyItem = new KeyItem(newKey, file.getName());
                 keylist.add(keyItem);
-                ObservableList<KeyItem> keyitemlist = FXCollections.observableList(keylist);
+                keyitemlist = FXCollections.observableList(keylist);
                 keyFile.setItems(keyitemlist);
                 keyFile.getSelectionModel().select(new KeyItem(null, "defaultkey"));
                 //keyFile.add(keyItem);
@@ -500,7 +728,7 @@ public class FXMLDocumentController implements Initializable {
             
             @Override
             public void handle(MouseEvent click){
-                if(click.getClickCount() > 1)
+                if(click.getClickCount() > 1 && search_result.getSelectionModel().getSelectedItem() != null)
                     downloadfromlist();
                 
             }

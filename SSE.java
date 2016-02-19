@@ -8,7 +8,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Map.Entry;
 import java.util.Set;
 
 import javax.crypto.SecretKey;
@@ -21,12 +20,14 @@ import javax.crypto.SecretKey;
 public class SSE {
 	public static HashMap<String, ArrayList<StringPair>> tSet;
 	
-	public static HashMap<String, ArrayList<StringPair>> EDBSetup(File[] selectedFiles, SecretKey kS, String key, boolean stem) {
+	public static HashMap<String, ArrayList<StringPair>> EDBSetup(File[] selectedFiles, SecretKey kS, String[] key, boolean stem) {
 		//TODO: Parse documents with indexing
-		HashMap<Integer, Set<String>> fileStemWords = new HashMap<Integer, Set<String>>();
+		//HashMap<Integer, Set<String>> fileStemWords = new HashMap<Integer, Set<String>>();
+		List<Set<String>> fileStemWords = new ArrayList<Set<String>>();
 		for(int i = 0; i < selectedFiles.length; i++) {
 			String filename = selectedFiles[i].getName();
 			Set<String> fileWords = readFile(selectedFiles[i]);
+			fileWords.add(com.google.common.io.Files.getNameWithoutExtension(filename).toLowerCase());
 			Set<String> stemWords = new HashSet<>();
 			for(String word : fileWords) {
 				if(Stopper.isStop(word)) continue;
@@ -36,22 +37,21 @@ public class SSE {
 					stemWords.add(word);
 				}
 			}
-			stemWords.add(com.google.common.io.Files.getNameWithoutExtension(filename).toLowerCase());
 			//change later
-			fileStemWords.put(i, stemWords);
+			fileStemWords.add(stemWords);
 		}
 		
 		tSet = new HashMap<String, ArrayList<StringPair>>();
-		for(Entry<Integer, Set<String>> entry : fileStemWords.entrySet()) {
-			Set<String> values = entry.getValue();
+		for(int i = 0; i < fileStemWords.size(); i++) {
+			Set<String> values = fileStemWords.get(i);
 			for(String word: values) {
 				FXMLDocumentController.cache.invalidate(word);
 				SecretKey kE = SHA3.createIndexingKey(kS, word);
 				
 				String encWord = SHA2.createIndexingString(kE, word).replace("+", "X");
-				String encId = AESCTR.encrypt(key, kE);
+				String encId = AESCTR.encrypt(key[i], kE);
 				
-				String filename = selectedFiles[entry.getKey()].getName();
+				String filename = selectedFiles[i].getName();
 				String encName = AESCTR.encrypt(filename, kE);
 				
 				if(!tSet.containsKey(encWord)) {

@@ -94,7 +94,7 @@ public class FXMLDocumentController implements Initializable {
     @FXML private Button btnbrowse;
     @FXML FileChooser filechooser = new FileChooser();
     @FXML Desktop desktop = Desktop.getDesktop();
-    
+    @FXML private String[] keys;
     public File selectedFile;
     final ObservableList<String> listitems = FXCollections.observableArrayList("");
     //final List<StringPair> searchlist = FXCollections.observableArrayList<>("fileId", "filename");
@@ -141,6 +141,11 @@ public class FXMLDocumentController implements Initializable {
         tab_pane.getSelectionModel().select(searchpanel); 
     }
     
+    @FXML
+    private void handleChangeSettings(){
+        tab_pane.getSelectionModel().select(settingpanel);
+    }
+    
     ////////////////////////////////////////////////////////////////////////////////
     ////////////////////////////////////////////////////////////////////////////////
     ////////////////////////// UPLOAD PANEL HANDLERS ///////////////////////////////
@@ -180,7 +185,7 @@ public class FXMLDocumentController implements Initializable {
         
         if (filelist != null){
             for(File selected_file : filelist){
-                //String filepath = selected_file.getAbsolutePath();
+                String filepath = selected_file.getAbsolutePath();
                 if(lastUpload.contains(filepath)){
                     Alert alert = new Alert(AlertType.CONFIRMATION);
                     alert.setTitle("Are you sure?");
@@ -200,6 +205,7 @@ public class FXMLDocumentController implements Initializable {
             selectedFiles = new File[filelist.size()];
             for(File fil : filelist) {
                 if(fil.isAbsolute() && fil.exists()){
+                    //System.out.println("Adding " + fil.getAbsolutePath() + "to index: " + y);
                     selectedFiles[y] = fil;
                     y++;
                 }
@@ -216,9 +222,15 @@ public class FXMLDocumentController implements Initializable {
         //for now uses same key to encrypt keywords
         Task<Boolean> task = new Task<Boolean>() {
             @Override protected Boolean call() throws Exception {
-                String key = UUID.randomUUID().toString();
+                keys = new String[selectedFiles.length];
+                for (int z = 0; z < selectedFiles.length; z++) {
+                    keys[z] = UUID.randomUUID().toString();
+                    System.out.println("Uploading" + selectedFiles[z].getAbsolutePath());
+                    FileUtils.uploadFile(selectedFiles[z], keys[z], AESCTR.secretKey);
+                }
+                //String key = UUID.randomUUID().toString();
                 updateProgress(5,100);
-                Map<String, ArrayList<StringPair>> map = SSE.EDBSetup(selectedFiles, AESCTR.secretKey, key, stemmer.isSelected());
+                Map<String, ArrayList<StringPair>> map = SSE.EDBSetup(selectedFiles, AESCTR.secretKey, keys, stemmer.isSelected());
                 updateProgress(20, 100);
                 ObjectMapper mapper = new ObjectMapper();
                 try{
@@ -230,10 +242,7 @@ public class FXMLDocumentController implements Initializable {
                     e1.printStackTrace();
                     return false;
                 }
-                for (File fi : selectedFiles) {
-                    System.out.println("Uploading" + fi.getAbsolutePath());
-                    FileUtils.uploadFile(fi, key, AESCTR.secretKey);
-                }
+                
 
                 updateProgress(100, 100);
                 return true;
@@ -352,6 +361,7 @@ public class FXMLDocumentController implements Initializable {
             @Override
             public void handle(WorkerStateEvent event) {
                 System.out.println("calling intersect");
+                
                 Set<StringPair> results = intersect(listSet, listSet.size());
                 System.out.println("populate results called");
                 populateResults(results);
@@ -460,6 +470,7 @@ public class FXMLDocumentController implements Initializable {
                 @Override
                 protected Boolean call() throws Exception {
                     try {
+                        System.out.println("Downloading: " + search_result.getSelectionModel().getSelectedItem().getFileName());
                         FileUtils.downloadFile(path, search_result.getSelectionModel().getSelectedItem().getFileId(), AESCTR.secretKey);
                         updateProgress(100, 100);
                     } catch (Exception ex) {

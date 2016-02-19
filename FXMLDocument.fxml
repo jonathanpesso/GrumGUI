@@ -1,5 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
+<?import javafx.scene.image.*?>
+<?import javafx.scene.effect.*?>
 <?import javafx.scene.text.*?>
 <?import java.lang.*?>
 <?import java.util.*?>
@@ -11,61 +13,128 @@
   <tabs>
     <Tab fx:id="welcomepanel" closable="false" text="Welcome!">
       <content>
-        <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
+        <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0" style="-fx-background-image: url(&quot;http://static.allbackgrounds.com/bg/metallic.jpg&quot;);">
                <children>
-                  <Label layoutX="94.0" layoutY="27.0" text="Welcome to Grum!" textAlignment="CENTER">
+                  <Label layoutX="16.0" layoutY="14.0" style="-fx-effect: dropshadow( three-pass-box , rgba(0,0,0,0.6) , 5, 0.0 , 0 , 1 ); -fx-text-fill: blue;" text="Welcome to Grum Guard!" textAlignment="CENTER" textFill="RED">
                      <font>
                         <Font name="Century" size="48.0" />
                      </font>
                   </Label>
-                  <Label layoutX="94.0" layoutY="113.0" prefHeight="27.0" prefWidth="432.0" text="The Hopfully Unhackable data storage application.">
+                  <Label alignment="CENTER" contentDisplay="CENTER" layoutX="94.0" layoutY="113.0" prefHeight="27.0" prefWidth="432.0" style="-fx-effect: dropshadow( three-pass-box , rgba(0,0,0,0.6) , 5, 0.0 , 0 , 1 ); -fx-text-fill: blue;" text="The Hopefully Unhackable data storage application." textFill="RED">
                      <font>
                         <Font size="18.0" />
                      </font>
+                     <effect>
+                        <Lighting>
+                           <bumpInput>
+                              <Shadow />
+                           </bumpInput>
+                           <light>
+                              <Light.Distant />
+                           </light>
+                        </Lighting>
+                     </effect>
+                     <cursor>
+                        <Cursor fx:constant="DEFAULT" />
+                     </cursor>
                   </Label>
                   <Separator layoutX="210.0" layoutY="97.0" prefWidth="200.0" />
-                  <Button id="move_to_upload" fx:id="change_to_upload" layoutX="94.0" layoutY="186.0" mnemonicParsing="false" onAction="#handleChangeUpload" prefHeight="146.0" prefWidth="176.0" text="Click Here to Upload a File!" />
-                  <Button id="move_to_search" fx:id="change_to_search" layoutX="350.0" layoutY="186.0" mnemonicParsing="false" onAction="#handleChangeSearch" prefHeight="146.0" prefWidth="176.0" text="Click Here to Search through the Database!" textAlignment="CENTER" wrapText="true" />
+                  <Button id="move_to_upload" fx:id="change_to_upload" layoutX="94.0" layoutY="186.0" mnemonicParsing="false" onAction="#handleChangeUpload" prefHeight="146.0" prefWidth="176.0" style="-fx-background-color: #000000,        linear-gradient(#7ebcea, #2f4b8f),        linear-gradient(#426ab7, #263e75),        linear-gradient(#395cab, #223768); -fx-background-radius: 30; -fx-background-insets: 0, 1, 2, 3, 0; -fx-text-fill: silver; -fx-font-weight: bold; -fx-padding: 10, 20, 10, 20; -fx-effect: dropshadow( three-pass-box , rgba(0,0,0,0.6) , 5, 0.0 , 0 , 1 );" text="Click Here to Upload a File!" />
+                  <Button id="move_to_search" fx:id="change_to_search" layoutX="350.0" layoutY="186.0" mnemonicParsing="false" onAction="#handleChangeSearch" prefHeight="146.0" prefWidth="176.0" style="-fx-background-color: #000000,        linear-gradient(#7ebcea, #2f4b8f),        linear-gradient(#426ab7, #263e75),        linear-gradient(#395cab, #223768); -fx-background-radius: 30; -fx-background-insets: 0, 1, 2, 3, 0; -fx-text-fill: silver; -fx-font-weight: bold; -fx-padding: 10, 20, 10, 20; -fx-effect: dropshadow( three-pass-box , rgba(0,0,0,0.6) , 5, 0.0 , 0 , 1 );" text="Click Here to Search!" />
+                  <ImageView fitHeight="52.0" fitWidth="61.0" layoutX="152.0" layoutY="270.0" pickOnBounds="true" preserveRatio="true">
+                     <image>
+                        <Image url="http://icons.iconarchive.com/icons/uribaani/realm/128/Arrow-Up-icon.png" />
+                     </image>
+                  </ImageView>
+                  <ImageView fitHeight="52.0" fitWidth="61.0" layoutX="408.0" layoutY="270.0" pickOnBounds="true" preserveRatio="true">
+                     <image>
+                        <Image url="http://icons.iconarchive.com/icons/hopstarter/sleek-xp-basic/128/Zoom-icon.png" />
+                     </image>
+                  </ImageView>
+                  <Button fx:id="change_to_settings" contentDisplay="CENTER" layoutX="265.0" layoutY="149.0" mnemonicParsing="false" onAction="#handleChangeSettings" style="-fx-background-color: #000000,        linear-gradient(#7ebcea, #2f4b8f),        linear-gradient(#426ab7, #263e75),        linear-gradient(#395cab, #223768); -fx-background-insets: 0, 1, 2, 3, 0; -fx-background-radius: 30; -fx-font-weight: bold; -fx-text-fill: silver; -fx-padding: 10, 20, 10, 20; -fx-effect: dropshadow( three-pass-box , rgba(0,0,0,0.6) , 5, 0.0 , 0 , 1 );" text="Key Settings" />
                </children></AnchorPane>
       </content>
     </Tab>
     <Tab fx:id="uploadpanel" closable="false" text="Upload">
       <content>
-        <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
+        <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0" style="-fx-background-image: url(&quot;http://static.allbackgrounds.com/bg/metallic.jpg&quot;);">
                <children>
-                  <TextField id="browse_bar" fx:id="filepath" layoutX="14.0" layoutY="31.0" prefHeight="25.0" prefWidth="408.0" />
-                  <Button id="browse" fx:id="btnbrowse" layoutX="449.0" layoutY="31.0" mnemonicParsing="false" onAction="#handleBrowseBtn" prefHeight="25.0" prefWidth="120.0" text="Browse" />
-                  <ListView id="file_list" fx:id="uploadlist" layoutX="14.0" layoutY="76.0" prefHeight="247.0" prefWidth="408.0" />
+                  <TextField id="browse_bar" fx:id="filepath" layoutX="14.0" layoutY="25.0" prefHeight="25.0" prefWidth="408.0" />
+                  <Button id="browse" fx:id="btnbrowse" alignment="BOTTOM_CENTER" contentDisplay="TOP" graphicTextGap="10.0" layoutX="449.0" layoutY="31.0" mnemonicParsing="false" onAction="#handleBrowseBtn" prefHeight="25.0" prefWidth="120.0" style="-fx-background-color: #000000,        linear-gradient(#7ebcea, #2f4b8f),        linear-gradient(#426ab7, #263e75),        linear-gradient(#395cab, #223768); -fx-background-radius: 30; -fx-background-insets: 0, 1, 2, 3, 0; -fx-text-fill: silver; -fx-font-weight: bold; -fx-padding: 10, 20, 10, 20; -fx-effect: dropshadow( three-pass-box , rgba(0,0,0,0.6) , 5, 0.0 , 0 , 1 );" text="Browse" textAlignment="CENTER" />
+                  <ListView id="file_list" fx:id="uploadlist" layoutX="14.0" layoutY="76.0" prefHeight="264.0" prefWidth="408.0" />
                   <Separator layoutX="118.0" layoutY="65.0" prefWidth="200.0" />
-                  <ScrollBar layoutX="408.0" layoutY="76.0" orientation="VERTICAL" prefHeight="247.0" prefWidth="14.0" />
-                  <Button id="upload" fx:id="btnupload" layoutX="448.0" layoutY="76.0" mnemonicParsing="false" onAction="#handleUploadbtn" prefHeight="246.0" prefWidth="122.0" text="Upload" />
-                  <Label layoutX="14.0" layoutY="14.0" prefHeight="17.0" prefWidth="408.0" text="Select a File to Upload" />
-                  <ProgressBar fx:id="upprogress" layoutX="14.0" layoutY="339.0" prefHeight="18.0" prefWidth="556.0" progress="0.0" />
+                  <ScrollBar layoutX="408.0" layoutY="76.0" orientation="VERTICAL" prefHeight="265.0" prefWidth="14.0" />
+                  <Button id="upload" fx:id="btnupload" layoutX="448.0" layoutY="76.0" mnemonicParsing="false" onAction="#handleUploadbtn" prefHeight="265.0" prefWidth="122.0" style="-fx-background-color: #000000,        linear-gradient(#7ebcea, #2f4b8f),        linear-gradient(#426ab7, #263e75),        linear-gradient(#395cab, #223768); -fx-background-radius: 30; -fx-background-insets: 0, 1, 2, 3, 0; -fx-text-fill: silver; -fx-font-weight: bold; -fx-padding: 10, 20, 10, 20; -fx-effect: dropshadow( three-pass-box , rgba(0,0,0,0.6) , 5, 0.0 , 0 , 1 );" text="Upload" />
+                  <Label layoutX="14.0" layoutY="4.0" prefHeight="17.0" prefWidth="408.0" style="-fx-text-fill: blue; -fx-effect: dropshadow( three-pass-box , rgba(0,0,0,0.6) , 5, 0.0 , 0 , 1 );" text="Select a File to Upload">
+                     <font>
+                        <Font size="15.0" />
+                     </font></Label>
+                  <ImageView fitHeight="24.0" fitWidth="27.0" layoutX="539.0" layoutY="38.0" pickOnBounds="true" preserveRatio="true">
+                     <image>
+                        <Image url="http://icons.iconarchive.com/icons/hopstarter/sleek-xp-basic/128/Files-icon.png" />
+                     </image>
+                  </ImageView>
+                  <ImageView fitHeight="69.0" fitWidth="79.0" layoutX="476.0" layoutY="240.0" pickOnBounds="true" preserveRatio="true">
+                     <image>
+                        <Image url="http://icons.iconarchive.com/icons/uribaani/realm/128/Arrow-Up-icon.png" />
+                     </image>
+                  </ImageView>
                </children></AnchorPane>
       </content>
     </Tab>
       <Tab fx:id="searchpanel" closable="false" text="Search">
         <content>
-          <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
+          <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0" style="-fx-background-image: url(&quot;http://static.allbackgrounds.com/bg/metallic.jpg&quot;);">
                <children>
-                  <ListView id="search_results" fx:id="search_result" layoutX="15.0" layoutY="78.0" prefHeight="247.0" prefWidth="405.0" />
-                  <TextField id="search_bar" fx:id="search_input" layoutX="14.0" layoutY="28.0" onKeyPressed="#enterbtn" prefHeight="25.0" prefWidth="406.0" />
-                  <Button id="search" fx:id="btnsearch" layoutX="437.0" layoutY="28.0" mnemonicParsing="false" onAction="#handleSearchbtn" prefHeight="25.0" prefWidth="145.0" text="Search" />
-                  <Button id="download" fx:id="btndownload" layoutX="449.0" layoutY="79.0" mnemonicParsing="false" onAction="#handleDownloadbtn" prefHeight="245.0" prefWidth="133.0" text="Download" />
+                  <ListView id="search_results" fx:id="search_result" layoutX="15.0" layoutY="78.0" prefHeight="279.0" prefWidth="405.0" />
+                  <Label layoutX="15.0" prefHeight="35.0" prefWidth="291.0" style="-fx-text-fill: blue; -fx-effect: dropshadow( three-pass-box , rgba(0,0,0,0.6) , 5, 0.0 , 0 , 1 );" text="Search by single or multiple keywords.">
+                     <font>
+                        <Font size="15.0" />
+                     </font></Label>
+                  <TextField id="search_bar" fx:id="search_input" layoutX="14.0" layoutY="28.0" prefHeight="25.0" prefWidth="406.0" />
+                  <Button id="search" fx:id="btnsearch" layoutX="437.0" layoutY="28.0" mnemonicParsing="false" onAction="#handleSearchbtn" prefHeight="25.0" prefWidth="145.0" style="-fx-background-color: #000000,        linear-gradient(#7ebcea, #2f4b8f),        linear-gradient(#426ab7, #263e75),        linear-gradient(#395cab, #223768); -fx-background-radius: 30; -fx-background-insets: 0, 1, 2, 3, 0; -fx-text-fill: silver; -fx-font-weight: bold; -fx-padding: 10, 20, 10, 20; -fx-effect: dropshadow( three-pass-box , rgba(0,0,0,0.6) , 5, 0.0 , 0 , 1 );" text="Search" />
+                  <Button id="download" fx:id="btndownload" layoutX="438.0" layoutY="79.0" mnemonicParsing="false" onAction="#handleDownloadbtn" prefHeight="277.0" prefWidth="144.0" style="-fx-background-color: #000000,        linear-gradient(#7ebcea, #2f4b8f),        linear-gradient(#426ab7, #263e75),        linear-gradient(#395cab, #223768); -fx-background-radius: 30; -fx-background-insets: 0, 1, 2, 3, 0; -fx-text-fill: silver; -fx-font-weight: bold; -fx-padding: 10, 20, 10, 20; -fx-effect: dropshadow( three-pass-box , rgba(0,0,0,0.6) , 5, 0.0 , 0 , 1 );" text="Download" />
                   <Separator layoutX="117.0" layoutY="59.0" prefWidth="200.0" />
-                  <ProgressBar fx:id="downprogress" layoutX="14.0" layoutY="339.0" prefHeight="18.0" prefWidth="568.0" progress="0.0" />
+                  <ImageView fitHeight="22.0" fitWidth="26.0" layoutX="536.0" layoutY="36.0" pickOnBounds="true" preserveRatio="true">
+                     <image>
+                        <Image url="http://icons.iconarchive.com/icons/hopstarter/sleek-xp-basic/128/Zoom-icon.png" />
+                     </image>
+                  </ImageView>
+                  <ImageView fitHeight="95.0" fitWidth="124.0" layoutX="463.0" layoutY="232.0" pickOnBounds="true" preserveRatio="true">
+                     <image>
+                        <Image url="http://icons.iconarchive.com/icons/acidrums4/betelgeuse/128/Places-folder-download-icon.png" />
+                     </image>
+                  </ImageView>
                </children>
             </AnchorPane>
         </content>
       </Tab>
       <Tab fx:id="settingpanel" closable="false" text="Settings">
         <content>
-          <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="254.0" prefWidth="600.0">
+		<AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="254.0" prefWidth="600.0" style="-fx-background-image: url(&quot;http://static.allbackgrounds.com/bg/metallic.jpg&quot;);">
                <children>
-                  <ComboBox fx:id="keyFile" layoutX="225.0" layoutY="34.0" prefWidth="150.0" />
-                  <Button fx:id="deletekey" layoutX="48.0" layoutY="75.0" mnemonicParsing="false" onAction="#handleRemoveKey" prefHeight="82.0" prefWidth="128.0" text="Delete" />
-                  <Button fx:id="newkey" layoutX="428.0" layoutY="75.0" mnemonicParsing="false" onAction="#handleNewKey" prefHeight="95.0" prefWidth="126.0" text="New" />
-                  <CheckBox fx:id="stemmer" layoutX="257.0" layoutY="177.0" mnemonicParsing="false" text="Use Stemmer" />
+                  <ComboBox fx:id="keyFile" layoutX="225.0" layoutY="34.0" prefWidth="150.0" style="-fx-effect: dropshadow( three-pass-box , rgba(0,0,0,0.6) , 5, 0.0 , 0 , 1 );" />
+                  <Button id="delete" fx:id="deletekey" layoutX="48.0" layoutY="75.0" mnemonicParsing="false" onAction="#handleRemoveKey" prefHeight="102.0" prefWidth="137.0" style="-fx-background-color: #000000,        linear-gradient(#7ebcea, #2f4b8f),        linear-gradient(#426ab7, #263e75),        linear-gradient(#395cab, #223768); -fx-background-radius: 30; -fx-background-insets: 0, 1, 2, 3, 0; -fx-text-fill: silver; -fx-font-weight: bold; -fx-padding: 10, 20, 10, 20; -fx-effect: dropshadow( three-pass-box , rgba(0,0,0,0.6) , 5, 0.0 , 0 , 1 );" text="Delete" />
+                  <Button id="newKey" fx:id="newkey" layoutX="428.0" layoutY="75.0" mnemonicParsing="false" onAction="#handleNewKey" prefHeight="101.0" prefWidth="134.0" style="-fx-background-color: #000000,        linear-gradient(#7ebcea, #2f4b8f),        linear-gradient(#426ab7, #263e75),        linear-gradient(#395cab, #223768); -fx-background-radius: 30; -fx-background-insets: 0, 1, 2, 3, 0; -fx-text-fill: silver; -fx-font-weight: bold; -fx-padding: 10, 20, 10, 20; -fx-effect: dropshadow( three-pass-box , rgba(0,0,0,0.6) , 5, 0.0 , 0 , 1 );" text="New" />
+                  <CheckBox fx:id="stemmer" layoutX="242.0" layoutY="116.0" mnemonicParsing="false" selected="true" style="-fx-text-fill: blue; -fx-effect: dropshadow( three-pass-box , rgba(0,0,0,0.6) , 5, 0.0 , 0 , 1 );" text="Use Stemmer">
+                     <font>
+                        <Font size="15.0" />
+                     </font></CheckBox>
+                  <ImageView fitHeight="33.0" fitWidth="46.0" layoutX="100.0" layoutY="137.0" pickOnBounds="true" preserveRatio="true">
+                     <image>
+                        <Image url="http://icons.iconarchive.com/icons/fatcow/farm-fresh/32/key-delete-icon.png" />
+                     </image>
+                  </ImageView>
+                  <ImageView fitHeight="35.0" fitWidth="32.0" layoutX="479.0" layoutY="138.0" pickOnBounds="true" preserveRatio="true">
+                     <image>
+                        <Image url="http://icons.iconarchive.com/icons/aha-soft/security/128/add-key-icon.png" />
+                     </image>
+                  </ImageView>
+                  <Label layoutX="243.0" layoutY="4.0" prefHeight="30.0" prefWidth="114.0" style="-fx-text-fill: blue; -fx-effect: dropshadow( three-pass-box , rgba(0,0,0,0.6) , 5, 0.0 , 0 , 1 );" text="Current Key" textAlignment="CENTER">
+                     <font>
+                        <Font size="20.0" />
+                     </font>
+                  </Label>
                </children></AnchorPane>
         </content>
       </Tab>

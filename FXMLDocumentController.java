@@ -64,17 +64,20 @@ import javafx.event.EventHandler;
 import javafx.scene.control.ButtonType;
 import javafx.scene.control.CheckBox;
 import javafx.scene.control.ComboBox;
+import javafx.scene.control.ListCell;
 import javafx.scene.control.ProgressBar;
 import javafx.scene.control.ScrollBar;
+import javafx.scene.control.Slider;
 import javafx.scene.control.TextInputDialog;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.input.MouseEvent;
+import javafx.util.Callback;
 import javax.crypto.SecretKey;
 
 /**
  *
- * @author jonathan
+ * @author Hopefully_Unhackable
  */
 public class FXMLDocumentController implements Initializable {
     
@@ -111,6 +114,8 @@ public class FXMLDocumentController implements Initializable {
     private List<File> filelist;
     private static Set<String> lastUpload = new HashSet<>();
     private File[] selectedFiles;
+    private ObservableList<StringPair> myObs;
+    @FXML private Slider matchslider;
     /*
     @SuppressWarnings("unchecked")
     public MouseAdapter getListClickHandler() {
@@ -361,7 +366,10 @@ public class FXMLDocumentController implements Initializable {
             @Override
             public void handle(WorkerStateEvent event) {
                 System.out.println("calling intersect");
-                
+                matchslider.setMin(1);
+                matchslider.setMax(listSet.size());
+                matchslider.setMajorTickUnit(1);
+                matchslider.setValue(listSet.size());
                 Set<StringPair> results = intersect(listSet, listSet.size());
                 System.out.println("populate results called");
                 populateResults(results);
@@ -429,7 +437,7 @@ public class FXMLDocumentController implements Initializable {
             //searchResults.addElement(new StringPair("", "No results..."));
             //list.setEnabled(false);
             
-            ObservableList<StringPair> myObs = FXCollections.observableList(myList);
+            myObs = FXCollections.observableList(myList);
             search_result.setItems(myObs);
             System.out.println("no results");
         } else {
@@ -437,7 +445,7 @@ public class FXMLDocumentController implements Initializable {
                 myList.add(result);
                 //searchResults.addElement(result);
             }
-            ObservableList<StringPair> myObs = FXCollections.observableList(myList);
+            myObs = FXCollections.observableList(myList);
             search_result.setItems(myObs);
         //list.setSelectedIndex(0);
         //list.setEnabled(true);
@@ -454,6 +462,7 @@ public class FXMLDocumentController implements Initializable {
     @FXML
     private void downloadfromlist(){
         if (search_result.getSelectionModel().getSelectedIndex() >= 0) {
+            
             FileChooser fileChooser = new FileChooser();
             fileChooser.setTitle("Select a file...");
             
@@ -461,60 +470,64 @@ public class FXMLDocumentController implements Initializable {
             
             // file chooser to save file
             selectedFile = filechooser.showSaveDialog(filepath.getScene().getWindow());
-            System.out.println("file chosen");
-            //if(fileChooser.showOpenDialog(null) == JFileChooser.APPROVE_OPTION) {
-                //JOptionPane.showMessageDialog(null, "Downloading file: " + list.getSelectedValue() + "[" + list.getSelectedIndex() + "]");
-            String path = selectedFile.getAbsolutePath();
-            System.out.println("downloading..");
-            Task<Boolean> download = new Task<Boolean>() {
-                @Override
-                protected Boolean call() throws Exception {
-                    try {
-                        System.out.println("Downloading: " + search_result.getSelectionModel().getSelectedItem().getFileName());
-                        FileUtils.downloadFile(path, search_result.getSelectionModel().getSelectedItem().getFileId(), AESCTR.secretKey);
-                        updateProgress(100, 100);
-                    } catch (Exception ex) {
-                        ex.printStackTrace();
-                        return false;
+            
+            
+            if(selectedFile == null)
+                ;
+            else {
+                System.out.println("file chosen");
+                String path = selectedFile.getAbsolutePath();
+                System.out.println("downloading..");
+                Task<Boolean> download = new Task<Boolean>() {
+                    @Override
+                    protected Boolean call() throws Exception {
+                        try {
+                            System.out.println("Downloading: " + search_result.getSelectionModel().getSelectedItem().getFileName());
+                            FileUtils.downloadFile(path, search_result.getSelectionModel().getSelectedItem().getFileId(), AESCTR.secretKey);
+                            updateProgress(100, 100);
+                        } catch (Exception ex) {
+                            ex.printStackTrace();
+                            return false;
+                        }
+                        return true;
                     }
-                    return true;
-                }
-                
-            };
-            
-            download.setOnSucceeded(new EventHandler<WorkerStateEvent>() {
-                @Override
-                public void handle(WorkerStateEvent event) {
-                    System.out.println("Download Complete!");
-                    notice("File Downloaded to: " + path);
-                } 
-            });
-            
-            download.setOnFailed(new EventHandler<WorkerStateEvent>() {
-                @Override
-                public void handle(WorkerStateEvent event) {
-                    System.out.println("Download failed!");
-                    throw new UnsupportedOperationException("Failed.");
-                }
-            });
-            
-            download.setOnCancelled(new EventHandler<WorkerStateEvent>() {
-               @Override
-               public void handle(WorkerStateEvent event) {
-                   System.out.println("Download cancelled!");
-                   throw new CancellationException("Cancelled.");
-               }
-            });
-//            FileUtils.downloadFile(path, search_result.getSelectionModel().getSelectedItem().getFileId(), AESCTR.secretKey);
-//            System.out.println("file downloaded");
-//                //ClientWindow.writeLog("Downloaded to " + path);
-//            notice("Downloaded to " + path);
-        //}
-            downprogress.progressProperty().bind(download.progressProperty());
-            //new Thread(task).start();
-            Thread down = new Thread(download);
-            down.setDaemon(true);
-            down.start();
+
+                };
+
+                download.setOnSucceeded(new EventHandler<WorkerStateEvent>() {
+                    @Override
+                    public void handle(WorkerStateEvent event) {
+                        System.out.println("Download Complete!");
+                        notice("File Downloaded to: " + path);
+                    } 
+                });
+
+                download.setOnFailed(new EventHandler<WorkerStateEvent>() {
+                    @Override
+                    public void handle(WorkerStateEvent event) {
+                        System.out.println("Download failed!");
+                        throw new UnsupportedOperationException("Failed.");
+                    }
+                });
+
+                download.setOnCancelled(new EventHandler<WorkerStateEvent>() {
+                   @Override
+                   public void handle(WorkerStateEvent event) {
+                       System.out.println("Download cancelled!");
+                       throw new CancellationException("Cancelled.");
+                   }
+                });
+    //            FileUtils.downloadFile(path, search_result.getSelectionModel().getSelectedItem().getFileId(), AESCTR.secretKey);
+    //            System.out.println("file downloaded");
+    //                //ClientWindow.writeLog("Downloaded to " + path);
+    //            notice("Downloaded to " + path);
+            //}
+                downprogress.progressProperty().bind(download.progressProperty());
+                //new Thread(task).start();
+                Thread down = new Thread(download);
+                down.setDaemon(true);
+                down.start();
+            }
         } else {
         // maybe produce an error message
             System.out.println("No file selected");
@@ -576,6 +589,13 @@ public class FXMLDocumentController implements Initializable {
         }
 		
         return newSet;
+    }
+    
+    @FXML
+    private void handlematchslider(){
+        Set<StringPair> results = intersect(listSet, (int) matchslider.getValue());
+        System.out.println("matchslider changed");
+        populateResults(results);
     }
     
     ////////////////////////////////////////////////////////////////////////////////
@@ -680,7 +700,9 @@ public class FXMLDocumentController implements Initializable {
     
     @Override
     public void initialize(URL url, ResourceBundle rb) {
-        
+        matchslider.setMax(1);
+        matchslider.setMin(1);
+        matchslider.setValue(1);
         stemmer.setSelected(true);
         stemmer.setIndeterminate(false);
         File folder = new File("keys");
@@ -734,18 +756,45 @@ public class FXMLDocumentController implements Initializable {
                 ex2.printStackTrace();
             }
         }
-    
-        search_result.setOnMouseClicked(new EventHandler<MouseEvent>(){
-            
-            @Override
-            public void handle(MouseEvent click){
-                if(click.getClickCount() > 1 && search_result.getSelectionModel().getSelectedItem() != null)
-                    downloadfromlist();
-                
-            }
+        
+        search_result.setCellFactory(new Callback<ListView<StringPair>, ListCell<StringPair>>(){
+           @Override
+           public ListCell<StringPair> call(ListView<StringPair> myObs) {
+               return new MouseClickListCell();
+           }
             
         });
+//        search_result.setOnMouseClicked(new EventHandler<MouseEvent>(){
+//            
+//            @Override
+//            public void handle(MouseEvent click){
+//                if(click.getClickCount() > 1 && search_result.getSelectionModel().getSelectedItem() != null)
+//                    downloadfromlist();
+//                
+//            }
+//            
+//        });
         
     }    
-    
+    public class MouseClickListCell extends ListCell<StringPair>
+    {
+        @Override
+        protected void updateItem(StringPair item, boolean empty){
+            super.updateItem(item, empty);
+            
+            if(empty){
+                setText(null);
+                setOnMouseClicked(null);
+            } else {
+                setText(item.toString());
+                setOnMouseClicked(new EventHandler<MouseEvent>() {
+                   @Override
+                   public void handle(MouseEvent event){
+                       if(event.getClickCount() > 1)
+                           downloadfromlist();
+                   }
+                });
+            }
+        }
+    }
 }

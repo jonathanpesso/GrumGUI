@@ -79,32 +79,34 @@
                         <Image url="http://icons.iconarchive.com/icons/uribaani/realm/128/Arrow-Up-icon.png" />
                      </image>
                   </ImageView>
+                  <ProgressBar fx:id="upprogress" layoutX="14.0" layoutY="341.0" prefHeight="18.0" prefWidth="556.0" progress="0.0" />
                </children></AnchorPane>
       </content>
     </Tab>
       <Tab fx:id="searchpanel" closable="false" text="Search">
         <content>
-          <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0" style="-fx-background-image: url(&quot;http://static.allbackgrounds.com/bg/metallic.jpg&quot;);">
+          <AnchorPane cacheShape="false" centerShape="false" minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0" scaleShape="false" style="-fx-background-image: url(&quot;http://static.allbackgrounds.com/bg/metallic.jpg&quot;);">
                <children>
-                  <ListView id="search_results" fx:id="search_result" layoutX="15.0" layoutY="78.0" prefHeight="279.0" prefWidth="405.0" />
+                  <ListView id="search_results" fx:id="search_result" layoutX="15.0" layoutY="89.0" prefHeight="240.0" prefWidth="405.0" />
                   <Label layoutX="15.0" prefHeight="35.0" prefWidth="291.0" style="-fx-text-fill: blue; -fx-effect: dropshadow( three-pass-box , rgba(0,0,0,0.6) , 5, 0.0 , 0 , 1 );" text="Search by single or multiple keywords.">
                      <font>
                         <Font size="15.0" />
                      </font></Label>
-                  <TextField id="search_bar" fx:id="search_input" layoutX="14.0" layoutY="28.0" prefHeight="25.0" prefWidth="406.0" />
+                  <TextField id="search_bar" fx:id="search_input" layoutX="14.0" layoutY="28.0" onKeyPressed="#enterbtn" prefHeight="25.0" prefWidth="406.0" />
                   <Button id="search" fx:id="btnsearch" layoutX="437.0" layoutY="28.0" mnemonicParsing="false" onAction="#handleSearchbtn" prefHeight="25.0" prefWidth="145.0" style="-fx-background-color: #000000,        linear-gradient(#7ebcea, #2f4b8f),        linear-gradient(#426ab7, #263e75),        linear-gradient(#395cab, #223768); -fx-background-radius: 30; -fx-background-insets: 0, 1, 2, 3, 0; -fx-text-fill: silver; -fx-font-weight: bold; -fx-padding: 10, 20, 10, 20; -fx-effect: dropshadow( three-pass-box , rgba(0,0,0,0.6) , 5, 0.0 , 0 , 1 );" text="Search" />
-                  <Button id="download" fx:id="btndownload" layoutX="438.0" layoutY="79.0" mnemonicParsing="false" onAction="#handleDownloadbtn" prefHeight="277.0" prefWidth="144.0" style="-fx-background-color: #000000,        linear-gradient(#7ebcea, #2f4b8f),        linear-gradient(#426ab7, #263e75),        linear-gradient(#395cab, #223768); -fx-background-radius: 30; -fx-background-insets: 0, 1, 2, 3, 0; -fx-text-fill: silver; -fx-font-weight: bold; -fx-padding: 10, 20, 10, 20; -fx-effect: dropshadow( three-pass-box , rgba(0,0,0,0.6) , 5, 0.0 , 0 , 1 );" text="Download" />
-                  <Separator layoutX="117.0" layoutY="59.0" prefWidth="200.0" />
+                  <Button id="download" fx:id="btndownload" layoutX="438.0" layoutY="79.0" mnemonicParsing="false" onAction="#handleDownloadbtn" prefHeight="260.0" prefWidth="144.0" style="-fx-background-color: #000000,        linear-gradient(#7ebcea, #2f4b8f),        linear-gradient(#426ab7, #263e75),        linear-gradient(#395cab, #223768); -fx-background-radius: 30; -fx-background-insets: 0, 1, 2, 3, 0; -fx-text-fill: silver; -fx-font-weight: bold; -fx-padding: 10, 20, 10, 20; -fx-effect: dropshadow( three-pass-box , rgba(0,0,0,0.6) , 5, 0.0 , 0 , 1 );" text="Download" />
                   <ImageView fitHeight="22.0" fitWidth="26.0" layoutX="536.0" layoutY="36.0" pickOnBounds="true" preserveRatio="true">
                      <image>
                         <Image url="http://icons.iconarchive.com/icons/hopstarter/sleek-xp-basic/128/Zoom-icon.png" />
                      </image>
                   </ImageView>
-                  <ImageView fitHeight="95.0" fitWidth="124.0" layoutX="463.0" layoutY="232.0" pickOnBounds="true" preserveRatio="true">
+                  <ImageView fitHeight="95.0" fitWidth="124.0" layoutX="471.0" layoutY="219.0" pickOnBounds="true" preserveRatio="true">
                      <image>
                         <Image url="http://icons.iconarchive.com/icons/acidrums4/betelgeuse/128/Places-folder-download-icon.png" />
                      </image>
                   </ImageView>
+                  <ProgressBar fx:id="downprogress" layoutX="14.0" layoutY="339.0" prefHeight="18.0" prefWidth="558.0" progress="0.0" />
+                  <Slider fx:id="matchslider" layoutX="14.0" layoutY="65.0" minorTickCount="0" onMouseReleased="#handlematchslider" prefHeight="14.0" prefWidth="407.0" showTickLabels="true" showTickMarks="true" snapToTicks="true" />
                </children>
             </AnchorPane>
         </content>

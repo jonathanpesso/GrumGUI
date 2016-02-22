@@ -223,14 +223,14 @@ public class FXMLDocumentController implements Initializable {
             notice("Please select a file");
             return;
         }					
-        System.out.println("Encrypting file...");
+        //System.out.println("Encrypting file...");
         //for now uses same key to encrypt keywords
         Task<Boolean> task = new Task<Boolean>() {
             @Override protected Boolean call() throws Exception {
                 keys = new String[selectedFiles.length];
                 for (int z = 0; z < selectedFiles.length; z++) {
                     keys[z] = UUID.randomUUID().toString();
-                    System.out.println("Uploading" + selectedFiles[z].getAbsolutePath());
+                    //System.out.println("Uploading" + selectedFiles[z].getAbsolutePath());
                     FileUtils.uploadFile(selectedFiles[z], keys[z], AESCTR.secretKey);
                 }
                 //String key = UUID.randomUUID().toString();
@@ -259,7 +259,7 @@ public class FXMLDocumentController implements Initializable {
         task.setOnSucceeded(new EventHandler<WorkerStateEvent>(){
            @Override
            public void handle(WorkerStateEvent event){
-               System.out.println("Upload Succeeded");
+               //System.out.println("Upload Succeeded");
                notice("Upload Complete!");
                lastUpload.clear();
                for(File f : selectedFiles){
@@ -271,7 +271,7 @@ public class FXMLDocumentController implements Initializable {
         task.setOnFailed(new EventHandler<WorkerStateEvent>(){
            @Override
            public void handle(WorkerStateEvent event){
-               System.out.println("Upload Failed");
+               //System.out.println("Upload Failed");
                throw new UnsupportedOperationException("Failed.");
            }           
         });
@@ -279,7 +279,7 @@ public class FXMLDocumentController implements Initializable {
         task.setOnCancelled(new EventHandler<WorkerStateEvent>(){
            @Override
            public void handle(WorkerStateEvent event) {
-               System.out.println("Upload Cancelled!");
+               //System.out.println("Upload Cancelled!");
                throw new CancellationException("Cancelled.");
            }
         });
@@ -345,7 +345,7 @@ public class FXMLDocumentController implements Initializable {
                   }
                   
               }
-          System.out.println("Searching: " + stemWords);
+          //System.out.println("Searching: " + stemWords);
           listSet.clear();
           for(String keyword : stemWords) {
               if(keyword.isEmpty()) continue;
@@ -365,13 +365,13 @@ public class FXMLDocumentController implements Initializable {
         task.setOnSucceeded(new EventHandler<WorkerStateEvent>(){
             @Override
             public void handle(WorkerStateEvent event) {
-                System.out.println("calling intersect");
+                //System.out.println("calling intersect");
                 matchslider.setMin(1);
                 matchslider.setMax(listSet.size());
                 matchslider.setMajorTickUnit(1);
                 matchslider.setValue(listSet.size());
                 Set<StringPair> results = intersect(listSet, listSet.size());
-                System.out.println("populate results called");
+                //System.out.println("populate results called");
                 populateResults(results);
                 
 
@@ -383,7 +383,7 @@ public class FXMLDocumentController implements Initializable {
         task.setOnFailed(new EventHandler<WorkerStateEvent>() {
            @Override
            public void handle(WorkerStateEvent event) {
-               System.out.println("query seperation failed");
+               //System.out.println("query seperation failed");
                throw new UnsupportedOperationException("Failed.");
            }
         });
@@ -391,7 +391,7 @@ public class FXMLDocumentController implements Initializable {
         task.setOnCancelled(new EventHandler<WorkerStateEvent>() {
            @Override
            public void handle(WorkerStateEvent event) {
-               System.out.println("operation cancelled");
+               //System.out.println("operation cancelled");
                throw new CancellationException("Cancelled.");
            }
         });
@@ -431,7 +431,7 @@ public class FXMLDocumentController implements Initializable {
         //searchResults.clear();
         search_result.getItems().clear();
         myList.clear();
-        System.out.println("cleared search list");
+        //System.out.println("cleared search list");
         if (results.isEmpty()) {
             myList.add(new StringPair("", "No results..."));
             //searchResults.addElement(new StringPair("", "No results..."));
@@ -439,7 +439,7 @@ public class FXMLDocumentController implements Initializable {
             
             myObs = FXCollections.observableList(myList);
             search_result.setItems(myObs);
-            System.out.println("no results");
+            //System.out.println("no results");
         } else {
             for (StringPair result : results) {
                 myList.add(result);
@@ -454,7 +454,7 @@ public class FXMLDocumentController implements Initializable {
     
     @FXML
     private void handleDownloadbtn(){
-        System.out.println("downloadfromlist called");
+        //System.out.println("downloadfromlist called");
         downloadfromlist();
         
     }
@@ -475,14 +475,14 @@ public class FXMLDocumentController implements Initializable {
             if(selectedFile == null)
                 ;
             else {
-                System.out.println("file chosen");
+                //System.out.println("file chosen");
                 String path = selectedFile.getAbsolutePath();
-                System.out.println("downloading..");
+                //System.out.println("downloading..");
                 Task<Boolean> download = new Task<Boolean>() {
                     @Override
                     protected Boolean call() throws Exception {
                         try {
-                            System.out.println("Downloading: " + search_result.getSelectionModel().getSelectedItem().getFileName());
+                            //System.out.println("Downloading: " + search_result.getSelectionModel().getSelectedItem().getFileName());
                             FileUtils.downloadFile(path, search_result.getSelectionModel().getSelectedItem().getFileId(), AESCTR.secretKey);
                             updateProgress(100, 100);
                         } catch (Exception ex) {
@@ -497,7 +497,7 @@ public class FXMLDocumentController implements Initializable {
                 download.setOnSucceeded(new EventHandler<WorkerStateEvent>() {
                     @Override
                     public void handle(WorkerStateEvent event) {
-                        System.out.println("Download Complete!");
+                        //System.out.println("Download Complete!");
                         notice("File Downloaded to: " + path);
                     } 
                 });
@@ -505,7 +505,7 @@ public class FXMLDocumentController implements Initializable {
                 download.setOnFailed(new EventHandler<WorkerStateEvent>() {
                     @Override
                     public void handle(WorkerStateEvent event) {
-                        System.out.println("Download failed!");
+                        //System.out.println("Download failed!");
                         throw new UnsupportedOperationException("Failed.");
                     }
                 });
@@ -513,7 +513,7 @@ public class FXMLDocumentController implements Initializable {
                 download.setOnCancelled(new EventHandler<WorkerStateEvent>() {
                    @Override
                    public void handle(WorkerStateEvent event) {
-                       System.out.println("Download cancelled!");
+                       //System.out.println("Download cancelled!");
                        throw new CancellationException("Cancelled.");
                    }
                 });
@@ -530,7 +530,7 @@ public class FXMLDocumentController implements Initializable {
             }
         } else {
         // maybe produce an error message
-            System.out.println("No file selected");
+            //System.out.println("No file selected");
             notice("No File Selected");
         }
         
@@ -538,10 +538,10 @@ public class FXMLDocumentController implements Initializable {
     
     private static Set<StringPair> intersect(List<Set<StringPair>> sets, int min) {
         if (sets.size() < 1) {
-            System.out.println("EMPTY SET");
+            //System.out.println("EMPTY SET");
             return Collections.emptySet();
         } else if(sets.size() <= min) {
-            System.out.println("CALLING OTHER INTERSECT");
+            //System.out.println("CALLING OTHER INTERSECT");
             return intersect(sets);
         }
         // Adds each result to multiset and counts
@@ -563,10 +563,10 @@ public class FXMLDocumentController implements Initializable {
     
     private static Set<StringPair> intersect(List<Set<StringPair>> sets) {
         if (sets.size() < 1) {
-            System.out.println("EMPTY SET");
+            //System.out.println("EMPTY SET");
             return Collections.emptySet();
         }
-        System.out.println("NOT AN EMPTY SET");
+        //System.out.println("NOT AN EMPTY SET");
         // Sort sets by size (ascending)
         Collections.sort(sets, new Comparator<Set<StringPair>>() {
             @Override
@@ -594,7 +594,7 @@ public class FXMLDocumentController implements Initializable {
     @FXML
     private void handlematchslider(){
         Set<StringPair> results = intersect(listSet, (int) matchslider.getValue());
-        System.out.println("matchslider changed");
+        //System.out.println("matchslider changed");
         populateResults(results);
     }
     
@@ -630,13 +630,13 @@ public class FXMLDocumentController implements Initializable {
             String keyName = keyFile.getSelectionModel().getSelectedItem().toString();
             File file = new File("keys/" + keyName);
             if(file.delete()){
-                System.out.println("Successfully deleted key:" + keyName);
+                //System.out.println("Successfully deleted key:" + keyName);
                 keylist.remove(keyFile.getSelectionModel().getSelectedIndex());
                 ObservableList<KeyItem> keyitemlist = FXCollections.observableList(keylist);
                 keyFile.setItems(keyitemlist);
                 keyFile.getSelectionModel().select(new KeyItem(null, "defaultkey"));
             } else{
-                System.out.println("Unable to delete file");
+                //System.out.println("Unable to delete file");
             }
         }
     }
@@ -666,7 +666,7 @@ public class FXMLDocumentController implements Initializable {
                 //keyFile.add(keyItem);
                 //keyFile.setSelectedItem(keyItem);
             } catch (IOException ex2) {
-                System.out.println("Failed to generate a new key");
+                //System.out.println("Failed to generate a new key");
                 ex2.printStackTrace();
                 
             }
@@ -731,9 +731,9 @@ public class FXMLDocumentController implements Initializable {
             keyFile.getSelectionModel().select(new KeyItem(null, "defaultkey"));
             //keyFile.setSelectedItem(new KeyItem(null, "defaultkey"));
             AESCTR.secretKey = keyFile.getSelectionModel().getSelectedItem().getKey();
-            System.out.println("Successfully loaded key: defaultkey");
+            //System.out.println("Successfully loaded key: defaultkey");
         } else {
-            System.out.println("No default key found, generating new one");
+            //System.out.println("No default key found, generating new one");
             File file = new File("keys/defaultkey");
             SecretKey newKey = AESCTR.generateKey();
         // Serialize (out)
@@ -752,7 +752,7 @@ public class FXMLDocumentController implements Initializable {
                 //keyFile.add(keyItem);
                 //keyFile.setSelectedItem(keyItem);
             } catch (IOException ex2) {
-                System.out.println("Failed to generate a default key");
+                //System.out.println("Failed to generate a default key");
                 ex2.printStackTrace();
             }
         }

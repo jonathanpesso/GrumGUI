@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="utf-8"?>
+<jnlp spec="1.0" xmlns:jfx="http://javafx.com" href="Grum.jnlp">
+  <information>
+    <title>Grum</title>
+    <vendor>jonathan</vendor>
+    <description>null</description>
+    <offline-allowed/>
+  </information>
+  <resources>
+    <j2se version="1.6+" href="http://java.sun.com/products/autodl/j2se"/>
+    <jar href="Grum.jar" size="55253" download="eager" />
+    <jar href="lib\US_export_policy.jar" size="3023" download="eager" />
+    <jar href="lib\aws-java-sdk-1.10.35.jar" size="2764" download="eager" />
+    <jar href="lib\aws-java-sdk-core-1.10.50.jar" size="566440" download="eager" />
+    <jar href="lib\aws-java-sdk-s3-1.10.50.jar" size="608845" download="eager" />
+    <jar href="lib\bcprov-ext-jdk15on-154.jar" size="3344961" download="eager" />
+    <jar href="lib\bcprov-jdk15on-154.jar" size="3277268" download="eager" />
+    <jar href="lib\commons-codec-1.9.jar" size="263965" download="eager" />
+    <jar href="lib\commons-logging-1.2.jar" size="61829" download="eager" />
+    <jar href="lib\fluent-hc-4.5.1.jar" size="31295" download="eager" />
+    <jar href="lib\guava-19.0.jar" size="2308517" download="eager" />
+    <jar href="lib\httpclient-4.5.1.jar" size="732765" download="eager" />
+    <jar href="lib\httpclient-cache-4.5.1.jar" size="158982" download="eager" />
+    <jar href="lib\httpclient-win-4.5.1.jar" size="17369" download="eager" />
+    <jar href="lib\httpcore-4.4.3.jar" size="326594" download="eager" />
+    <jar href="lib\httpmime-4.5.1.jar" size="40698" download="eager" />
+    <jar href="lib\jackson-annotations-2.6.0.jar" size="46968" download="eager" />
+    <jar href="lib\jackson-core-2.6.4.jar" size="258877" download="eager" />
+    <jar href="lib\jackson-databind-2.6.4.jar" size="1171262" download="eager" />
+    <jar href="lib\jgoodies-common-javadoc.jar" size="228951" download="eager" />
+    <jar href="lib\jgoodies-common-sources.jar" size="72202" download="eager" />
+    <jar href="lib\jgoodies-common.jar" size="35843" download="eager" />
+    <jar href="lib\jgoodies-forms-javadoc.jar" size="427914" download="eager" />
+    <jar href="lib\jgoodies-forms-sources.jar" size="163807" download="eager" />
+    <jar href="lib\jgoodies-forms.jar" size="118985" download="eager" />
+    <jar href="lib\jna-4.1.0.jar" size="914597" download="eager" />
+    <jar href="lib\jna-platform-4.1.0.jar" size="1464423" download="eager" />
+    <jar href="lib\joda-time-2.9.2.jar" size="625596" download="eager" />
+    <jar href="lib\local_policy.jar" size="3035" download="eager" />
+  </resources>
+  <applet-desc  width="800" height="600" main-class="com.javafx.main.NoJavaFXFallback"  name="Grum" >
+    <param name="requiredFXVersion" value="8.0+"/>
+  </applet-desc>
+  <jfx:javafx-desc  width="800" height="600" main-class="javafxapplication2.JavaFXApplication2"  name="Grum" />
+  <update check="always"/>
+</jnlp>

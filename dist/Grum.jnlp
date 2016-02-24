@@ -8,7 +8,7 @@
   </information>
   <resources>
     <j2se version="1.6+" href="http://java.sun.com/products/autodl/j2se"/>
-    <jar href="Grum.jar" size="56834" download="eager" />
+    <jar href="Grum.jar" size="55253" download="eager" />
     <jar href="lib\US_export_policy.jar" size="3023" download="eager" />
     <jar href="lib\aws-java-sdk-1.10.35.jar" size="2764" download="eager" />
     <jar href="lib\aws-java-sdk-core-1.10.50.jar" size="566440" download="eager" />
